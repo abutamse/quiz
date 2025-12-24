@@ -5,59 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Große Quiz App</title>
 <style>
-body {
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin:0; padding:0;
-    background: linear-gradient(to bottom,#6a11cb,#2575fc);
-    display:flex; justify-content:center; align-items:center;
-    min-height:100vh;
-}
-.container {
-    background:white; padding:20px;
-    border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.3);
-    width:95%; max-width:600px; transition: all 0.3s ease;
-}
-h2,h3 {
-    text-align:center; margin:10px 0; color:#333;
-}
-input {
-    width:100%; padding:12px; margin:5px 0;
-    border-radius:10px; border:1px solid #ccc; font-size:16px;
-    box-sizing:border-box;
-}
-button {
-    width:100%; padding:12px; margin-top:10px;
-    border:none; border-radius:10px; background:#4CAF50;
-    color:white; font-weight:bold; cursor:pointer; font-size:16px;
-    transition: all 0.2s ease;
-}
+body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0; background: linear-gradient(to bottom,#6a11cb,#2575fc); display:flex; justify-content:center; align-items:center; min-height:100vh; }
+.container { background:white; padding:20px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.3); width:95%; max-width:600px; transition: all 0.3s ease; }
+h2,h3 { text-align:center; margin:10px 0; color:#333; }
+input { width:100%; padding:12px; margin:5px 0; border-radius:10px; border:1px solid #ccc; font-size:16px; box-sizing:border-box; }
+button { width:100%; padding:12px; margin-top:10px; border:none; border-radius:10px; background:#4CAF50; color:white; font-weight:bold; cursor:pointer; font-size:16px; transition: all 0.2s ease; }
 button:hover { background:#45a049; transform:scale(1.02); }
 .hidden { display:none; }
-.theme-block, .subtheme-block, .answer-btn {
-    padding:18px; background:#e2e8f0; margin:10px 0;
-    border-radius:15px; cursor:pointer; text-align:center;
-    font-weight:bold; font-size:18px; transition: all 0.2s ease;
-}
-.theme-block:hover, .subtheme-block:hover, .answer-btn:hover {
-    background:#d1d5db; transform:scale(1.02);
-}
+.theme-block, .subtheme-block, .answer-btn { padding:18px; background:#e2e8f0; margin:10px 0; border-radius:15px; cursor:pointer; text-align:center; font-weight:bold; font-size:18px; transition: all 0.2s ease; }
+.theme-block:hover, .subtheme-block:hover, .answer-btn:hover { background:#d1d5db; transform:scale(1.02); }
 .flex { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.lang-btn {
-    width:auto; padding:5px 10px; margin:0 5px; font-size:14px;
-    background:#007BFF; color:white; border-radius:5px; cursor:pointer;
-}
+.lang-btn { width:auto; padding:5px 10px; margin:0 5px; font-size:14px; background:#007BFF; color:white; border-radius:5px; cursor:pointer; }
 .lang-btn:hover { background:#0056b3; transform:scale(1.05); }
-.coin-display {
-    font-weight:bold; background:#ffecb3; padding:5px 10px;
-    border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.2);
-}
+.coin-display { font-weight:bold; background:#ffecb3; padding:5px 10px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.2); }
 .progress-bar { width:100%; background:#ddd; border-radius:10px; overflow:hidden; margin-bottom:15px; height:20px; }
 .progress-fill { height:100%; background:#4caf50; width:0%; transition: width 0.3s; }
 </style>
 </head>
 <body>
 
-<!-- Login / Registrierung -->
 <div class="container" id="login-container">
     <h2 id="title">Login / Registrierung</h2>
     <input type="text" id="username" placeholder="Benutzername">
@@ -67,7 +33,6 @@ button:hover { background:#45a049; transform:scale(1.02); }
     <p id="login-msg" style="color:red; text-align:center;"></p>
 </div>
 
-<!-- Themen auswählen -->
 <div class="container hidden" id="theme-container">
     <div class="flex">
         <h2 id="theme-title">Themen auswählen</h2>
@@ -82,7 +47,6 @@ button:hover { background:#45a049; transform:scale(1.02); }
     <button id="logout-btn" style="background:#f44336;">Logout</button>
 </div>
 
-<!-- Quiz -->
 <div class="container hidden" id="quiz-container">
     <div class="flex">
         <h2 id="quiz-topic"></h2>
@@ -94,7 +58,8 @@ button:hover { background:#45a049; transform:scale(1.02); }
 </div>
 
 <script>
-// ===== Variablen =====
+document.addEventListener('DOMContentLoaded',()=>{
+
 let currentLang='de', currentUser=localStorage.getItem('currentUser');
 let currentTopic='', currentSubtopic='', currentQuizIndex=0;
 
@@ -118,175 +83,33 @@ const quizContent=document.getElementById('quiz-content');
 const progressFill=document.getElementById('progress-fill');
 const quizBackBtn=document.getElementById('quiz-back-btn');
 
-// ===== LocalStorage Helper =====
-function getUser(u){ return JSON.parse(localStorage.getItem('user_'+u)); }
-function saveUser(u,d){ localStorage.setItem('user_'+u,JSON.stringify(d)); }
-
-// ===== Sprache wechseln =====
-langButtons.forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-        currentLang=btn.dataset.lang;
-        renderUI();
-        if(!themeContainer.classList.contains('hidden')) showThemes();
-    });
-});
-
-function renderUI(){
-    if(currentLang==='de'){title.textContent='Login / Registrierung'; loginBtn.textContent='Login'; registerBtn.textContent='Registrieren'; logoutBtn.textContent='Logout'; themeTitle.textContent='Themen auswählen'; quizBackBtn.textContent='Zurück';}
-    else if(currentLang==='en'){title.textContent='Login / Register'; loginBtn.textContent='Login'; registerBtn.textContent='Register'; logoutBtn.textContent='Logout'; themeTitle.textContent='Select Topics'; quizBackBtn.textContent='Back';}
-    else if(currentLang==='ar'){title.textContent='تسجيل الدخول / التسجيل'; loginBtn.textContent='تسجيل الدخول'; registerBtn.textContent='تسجيل'; logoutBtn.textContent='تسجيل الخروج'; themeTitle.textContent='اختر الموضوع'; quizBackBtn.textContent='عودة';}
-}
-
-// ===== Registrierung =====
-registerBtn.addEventListener('click',()=>{
-    const u=usernameInput.value.trim(); 
-    const p=passwordInput.value.trim();
-    if(!u||!p){ loginMsg.textContent=currentLang==='de'?'Bitte ausfüllen!':currentLang==='en'?'Please fill in!':'الرجاء إدخال البيانات'; return; }
-    if(getUser(u)){ loginMsg.textContent=currentLang==='de'?'Benutzer existiert schon!':currentLang==='en'?'User already exists!':'المستخدم موجود بالفعل'; return; }
-    saveUser(u,{password:p,coins:0,progress:{}});
-    localStorage.setItem('currentUser',u);
-    currentUser=u;
-    loginMsg.textContent='';
-    showThemes();
-});
-
-// ===== Login =====
-loginBtn.addEventListener('click',()=>{
-    const u=usernameInput.value.trim(); 
-    const p=passwordInput.value.trim(); 
-    const d=getUser(u);
-    if(!d){ loginMsg.textContent=currentLang==='de'?'Benutzer nicht gefunden!':currentLang==='en'?'User not found!':'المستخدم غير موجود'; return; }
-    if(d.password!==p){ loginMsg.textContent=currentLang==='de'?'Falsches Passwort!':currentLang==='en'?'Wrong password!':'كلمة المرور خاطئة'; return; }
-    localStorage.setItem('currentUser',u); currentUser=u; loginMsg.textContent='';
-    showThemes();
-});
-
-// ===== Logout =====
-logoutBtn.addEventListener('click',()=>{
-    localStorage.removeItem('currentUser'); location.reload();
-});
-
-// ===== Themenanzeige =====
-function showThemes(){
-    loginContainer.classList.add('hidden'); themeContainer.classList.remove('hidden');
-    const d=getUser(currentUser); coinsSpan.textContent=d.coins; themesDiv.innerHTML='';
-    for(const t in topics){ const div=document.createElement('div'); div.className='theme-block'; div.textContent=t; div.addEventListener('click',()=>showSubtopics(t)); themesDiv.appendChild(div); }
-}
-
-function showSubtopics(topic){
-    currentTopic=topic; themesDiv.innerHTML='';
-    for(const sub in topics[topic]){
-        const div=document.createElement('div'); div.className='subtheme-block'; div.textContent=sub;
-        div.addEventListener('click',()=>startQuiz(sub));
-        themesDiv.appendChild(div);
-    }
-}
-
-if(currentUser) showThemes();
-renderUI();
-
-</script>
-</body>
-</html>
-<script>
-// ===== Quiz-Variablen =====
-const quizBackBtn=document.getElementById('quiz-back-btn');
-const quizContent=document.getElementById('quiz-content');
-const quizTopic=document.getElementById('quiz-topic');
-const quizCoins=document.getElementById('quiz-coins');
-const progressFill=document.getElementById('progress-fill');
-
-let currentSubtopic=''; 
-let currentQuizIndex=0;
-
-// ===== Quiz starten =====
-function startQuiz(sub){
-    currentSubtopic=sub;
-    const d=getUser(currentUser);
-    const key=currentTopic+'_'+currentSubtopic;
-    currentQuizIndex=d.progress[key] || 0; // Fortschritt laden
-    themeContainer.classList.add('hidden'); 
-    quizContainer.classList.remove('hidden');
-    quizTopic.textContent=currentTopic + ' - ' + currentSubtopic;
-    quizCoins.textContent=d.coins;
-    renderQuiz();
-}
-
-// ===== Quiz anzeigen =====
-function renderQuiz(){
-    const arr = topics[currentTopic][currentSubtopic];
-    if(currentQuizIndex >= arr.length){
-        // Quiz beendet
-        const d=getUser(currentUser);
-        d.coins += 20; // Bonus
-        saveUser(currentUser,d);
-        alert((currentLang==='de'?'Quiz beendet! +20 Münzen':currentLang==='en'?'Quiz finished! +20 coins':'تم الانتهاء من الاختبار +20 عملات'));
-        quizContainer.classList.add('hidden');
-        showSubtopics(currentTopic);
-        return;
-    }
-
-    const q = arr[currentQuizIndex];
-    let options = [...q.options];
-    options.sort(() => Math.random() - 0.5); // Zufällige Reihenfolge
-    quizContent.innerHTML = '';
-
-    // Multiple Choice Buttons
-    options.forEach(opt=>{
-        const btn=document.createElement('button');
-        btn.className='answer-btn';
-        btn.textContent = opt;
-        btn.addEventListener('click', ()=>{
-            const d=getUser(currentUser);
-            if(opt === q.answer){
-                d.coins += 25;
-                d.progress[currentTopic+'_'+currentSubtopic] = currentQuizIndex + 1; // Fortschritt speichern
-                saveUser(currentUser,d);
-                quizCoins.textContent=d.coins;
-                currentQuizIndex++;
-                alert(currentLang==='de'?'Richtig!':currentLang==='en'?'Correct!':'صحيح!');
-                renderQuiz();
-            } else {
-                alert(currentLang==='de'?'Falsch!':currentLang==='en'?'Wrong!':'خطأ!');
-            }
-        });
-        quizContent.appendChild(btn);
-    });
-
-    // Hilfe-Button
-    const helpBtn=document.createElement('button');
-    helpBtn.textContent=currentLang==='de'?'Hilfe (100 Münzen)':'Help (100 coins)';
-    helpBtn.addEventListener('click', ()=>{
-        const d=getUser(currentUser);
-        if(d.coins >= 100){
-            d.coins -= 100;
-            saveUser(currentUser,d);
-            quizCoins.textContent = d.coins;
-            let removed = 0;
-            document.querySelectorAll('.answer-btn').forEach(b=>{
-                if(b.textContent !== q.answer && removed < 2){
-                    b.style.display='none';
-                    removed++;
-                }
-            });
-        } else {
-            alert(currentLang==='de'?'Nicht genug Münzen!':currentLang==='en'?'Not enough coins!':'لا يوجد عملات كافية!');
-        }
-    });
-    quizContent.appendChild(helpBtn);
-
-    // Fortschrittsbalken
-    progressFill.style.width = (currentQuizIndex / arr.length * 100) + '%';
-}
-
-// ===== Zurück-Button im Quiz =====
-quizBackBtn.addEventListener('click', ()=>{
-    quizContainer.classList.add('hidden');
-    showSubtopics(currentTopic);
-});
-</script>
+// ===== Themen & Fragen =====
 const topics = {
-  "Geschichte": {
+    "Geschichte":{"Deutschland":[
+        {q:{de:"Wann begann der 2. Weltkrieg?",en:"When did WWII start?",ar:"متى بدأ الحرب العالمية الثانية؟"},options:["1939","1945","1914","1923"],answer:"1939"},
+        {q:{de:"Wer war der erste Bundeskanzler?",en:"Who was the first chancellor?",ar:"من كان المستشار الأول؟"},options:["Konrad Adenauer","Helmut Kohl","Angela Merkel","Willy Brandt"],answer:"Konrad Adenauer"},
+        {q:{de:"Wann wurde die Berliner Mauer gebaut?",en:"When was the Berlin Wall built?",ar:"متى بنيت جدار برلين؟"},options:["1961","1949","1989","1953"],answer:"1961"},
+        {q:{de:"Wann fiel die Mauer?",en:"When did the wall fall?",ar:"متى سقط الجدار؟"},options:["1989","1990","1980","1975"],answer:"1989"},
+        {q:{de:"Wer war Kaiser im 19. Jahrhundert?",en:"Who was emperor in 19th century?",ar:"من كان الإمبراطور في القرن التاسع عشر؟"},options:["Wilhelm I","Friedrich II","Napoleon","Otto"],answer:"Wilhelm I"},
+        {q:{de:"Was war die Weimarer Republik?",en:"What was the Weimar Republic?",ar:"ما هي جمهورية فايمار؟"},options:["Republik","Königreich","Diktatur","Fürstentum"],answer:"Republik"},
+        {q:{de:"Wann endete der 1. Weltkrieg?",en:"When did WWI end?",ar:"متى انتهت الحرب العالمية الأولى؟"},options:["1918","1914","1939","1920"],answer:"1918"},
+        {q:{de:"Wer schrieb 'Mein Kampf'?",en:"Who wrote 'Mein Kampf'?",ar:"من كتب كتاب 'كفاحي'؟"},options:["Adolf Hitler","Goebbels","Bismarck","Hesse"],answer:"Adolf Hitler"},
+        {q:{de:"Wann begann die NS-Zeit?",en:"When did the Nazi era begin?",ar:"متى بدأت الحقبة النازية؟"},options:["1933","1920","1945","1919"],answer:"1933"},
+        {q:{de:"Wer war der letzte Kaiser Deutschlands?",en:"Who was the last German emperor?",ar:"من كان آخر إمبراطور ألماني؟"},options:["Wilhelm II","Wilhelm I","Friedrich III","Otto"],answer:"Wilhelm II"}
+    ]},
+    "Wissenschaft":{"Physik":[
+        {q:{de:"Wer entwickelte die Relativitätstheorie?",en:"Who developed relativity?",ar:"من طور نظرية النسبية؟"},options:["Einstein","Newton","Tesla","Galileo"],answer:"Einstein"},
+        {q:{de:"Was beschreibt E=mc²?",en:"What does E=mc² describe?",ar:"ماذا تصف E=mc²؟"},options:["Masse-Energie","Kraft","Geschwindigkeit","Temperatur"],answer:"Masse-Energie"},
+        {q:{de:"Wer entdeckte die Gravitation?",en:"Who discovered gravity?",ar:"من اكتشف الجاذبية؟"},options:["Newton","Einstein","Galileo","Tesla"],answer:"Newton"},
+        {q:{de:"Was ist Lichtgeschwindigkeit?",en:"What is light speed?",ar:"ما هي سرعة الضوء؟"},options:["299792458 m/s","150000000 m/s","300000 km/s","500000 m/s"],answer:"299792458 m/s"},
+        {q:{de:"Was ist ein Photon?",en:"What is a photon?",ar:"ما هو الفوتون؟"},options:["Teilchen des Lichts","Atom","Molekül","Elektron"],answer:"Teilchen des Lichts"},
+        {q:{de:"Was ist Quantenmechanik?",en:"What is quantum mechanics?",ar:"ما هي ميكانيكا الكم؟"},options:["Physik der kleinen Teilchen","Chemie","Biologie","Astronomie"],answer:"Physik der kleinen Teilchen"},
+        {q:{de:"Wer entdeckte Elektronen?",en:"Who discovered electrons?",ar:"من اكتشف الإلكترونات؟"},options:["Thomson","Einstein","Newton","Faraday"],answer:"Thomson"},
+        {q:{de:"Was beschreibt Ohmsches Gesetz?",en:"What describes Ohm's law?",ar:"ماذا يصف قانون أوم؟"},options:["Spannung-Strom-Widerstand","Kraft","Energie","Masse"],answer:"Spannung-Strom-Widerstand"},
+        {q:{de:"Wer ist bekannt für die Gesetze der Bewegung?",en:"Known for laws of motion?",ar:"من معروف بقوانين الحركة؟"},options:["Newton","Einstein","Galileo","Tesla"],answer:"Newton"},
+        {q:{de:"Was ist Kernfusion?",en:"What is nuclear fusion?",ar:"ما هو الانصهار النووي؟"},options:["Verschmelzen von Atomkernen","Spaltung von Atomen","Chemische Reaktion","Elektrische Energie"],answer:"Verschmelzen von Atomkernen"}
+    ]},
+    "Geschichte": {
     "Deutschland": [
       {q:{de:"Wann begann der 2. Weltkrieg?",en:"When did WWII start?",ar:"متى بدأ الحرب العالمية الثانية؟"}, options:["1939","1945","1914","1923"], answer:"1939"},
       {q:{de:"Wer war der erste Bundeskanzler?",en:"Who was the first chancellor?",ar:"من كان المستشار الأول؟"}, options:["Konrad Adenauer","Helmut Kohl","Angela Merkel","Willy Brandt"], answer:"Konrad Adenauer"},
@@ -353,7 +176,143 @@ const topics = {
       {q:{de:"Was ist 50+25?",en:"What is 50+25?",ar:"ما هو 50+25؟"}, options:["75","70","65","80"], answer:"75"},
       {q:{de:"Was ist 20-15?",en:"What is 20-15?",ar:"ما هو 20-15؟"}, options:["5","10","4","6"], answer:"5"}
     ]
-  }
-
-  // Du kannst hier noch weitere Themen hinzufügen: Technik, Sport, Musik, Kunst, Politik, Geographie, … bis 10 Themen
+    // Du kannst auf diese Weise weitere Themen und Unterthemen mit 10 Fragen erstellen
 };
+
+// ===== Hilfsfunktionen =====
+function getUser(u){ return JSON.parse(localStorage.getItem('user_'+u)); }
+function saveUser(u,d){ localStorage.setItem('user_'+u,JSON.stringify(d)); }
+
+langButtons.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        currentLang=btn.dataset.lang;
+        renderUI();
+        if(!themeContainer.classList.contains('hidden')) showThemes();
+    });
+});
+
+function renderUI(){
+    if(currentLang==='de'){title.textContent='Login / Registrierung';loginBtn.textContent='Login';registerBtn.textContent='Registrieren';logoutBtn.textContent='Logout';themeTitle.textContent='Themen auswählen';quizBackBtn.textContent='Zurück';}
+    else if(currentLang==='en'){title.textContent='Login / Register';loginBtn.textContent='Login';registerBtn.textContent='Register';logoutBtn.textContent='Logout';themeTitle.textContent='Select Topics';quizBackBtn.textContent='Back';}
+    else if(currentLang==='ar'){title.textContent='تسجيل الدخول / التسجيل';loginBtn.textContent='تسجيل الدخول';registerBtn.textContent='تسجيل';logoutBtn.textContent='تسجيل الخروج';themeTitle.textContent='اختر الموضوع';quizBackBtn.textContent='عودة';}
+}
+
+// ===== Registrierung =====
+registerBtn.addEventListener('click',()=>{
+    const u=usernameInput.value.trim(); 
+    const p=passwordInput.value.trim();
+    if(!u || !p){ loginMsg.textContent=currentLang==='de'?'Bitte ausfüllen!':currentLang==='en'?'Please fill in!':'الرجاء إدخال البيانات'; return; }
+    if(getUser(u)){ loginMsg.textContent=currentLang==='de'?'Benutzer existiert schon!':currentLang==='en'?'User already exists!':'المستخدم موجود بالفعل'; return; }
+    saveUser(u,{password:p,coins:0,progress:{}}); localStorage.setItem('currentUser',u); currentUser=u; loginMsg.textContent=''; showThemes();
+});
+
+// ===== Login =====
+loginBtn.addEventListener('click',()=>{
+    const u=usernameInput.value.trim(); 
+    const p=passwordInput.value.trim(); 
+    const d=getUser(u);
+    if(!d){ loginMsg.textContent=currentLang==='de'?'Benutzer nicht gefunden!':currentLang==='en'?'User not found!':'المستخدم غير موجود'; return; }
+    if(d.password!==p){ loginMsg.textContent=currentLang==='de'?'Falsches Passwort!':currentLang==='en'?'Wrong!':'كلمة المرور خاطئة'; return; }
+    localStorage.setItem('currentUser',u); currentUser=u; loginMsg.textContent=''; showThemes();
+});
+
+// ===== Logout =====
+logoutBtn.addEventListener('click',()=>{ localStorage.removeItem('currentUser'); location.reload(); });
+
+// ===== Themen anzeigen =====
+function showThemes(){
+    loginContainer.classList.add('hidden');
+    themeContainer.classList.remove('hidden');
+    const d=getUser(currentUser);
+    coinsSpan.textContent=d.coins;
+    themesDiv.innerHTML='';
+    for(const t in topics){
+        const div=document.createElement('div');
+        div.className='theme-block';
+        div.textContent=t;
+        div.addEventListener('click',()=>showSubtopics(t));
+        themesDiv.appendChild(div);
+    }
+}
+
+function showSubtopics(topic){
+    currentTopic=topic;
+    themesDiv.innerHTML='';
+    for(const sub in topics[topic]){
+        const div=document.createElement('div');
+        div.className='subtheme-block';
+        div.textContent=sub;
+        div.addEventListener('click',()=>startQuiz(sub));
+        themesDiv.appendChild(div);
+    }
+}
+
+function startQuiz(sub){
+    currentSubtopic=sub;
+    const d=getUser(currentUser);
+    const key=currentTopic+'_'+currentSubtopic;
+    currentQuizIndex=d.progress[key]||0;
+    themeContainer.classList.add('hidden');
+    quizContainer.classList.remove('hidden');
+    quizTopic.textContent=currentTopic+' - '+currentSubtopic;
+    quizCoins.textContent=d.coins;
+    renderQuiz();
+}
+
+function renderQuiz(){
+    const arr=topics[currentTopic][currentSubtopic];
+    if(currentQuizIndex>=arr.length){
+        alert(currentLang==='de'?'Quiz beendet! +20 Coins':currentLang==='en'?'Quiz finished! +20 coins':'تم الانتهاء من الاختبار +20 عملات');
+        const d=getUser(currentUser); d.coins+=20; saveUser(currentUser,d); quizCoins.textContent=d.coins;
+        quizContainer.classList.add('hidden'); showSubtopics(currentTopic); return;
+    }
+    const q=arr[currentQuizIndex];
+    let options=[...q.options]; options.sort(()=>Math.random()-0.5);
+    quizContent.innerHTML='';
+    options.forEach(opt=>{
+        const btn=document.createElement('button');
+        btn.className='answer-btn';
+        btn.textContent=opt;
+        btn.addEventListener('click',()=>{
+            const d=getUser(currentUser);
+            if(opt===q.answer){
+                alert(currentLang==='de'?'Richtig!':currentLang==='en'?'Correct!':'صحيح!');
+                d.coins+=25;
+                d.progress[currentTopic+'_'+currentSubtopic]=currentQuizIndex+1;
+                saveUser(currentUser,d);
+                quizCoins.textContent=d.coins;
+                currentQuizIndex++;
+                renderQuiz();
+            }else{
+                alert(currentLang==='de'?'Falsch!':currentLang==='en'?'Wrong!':'خطأ!');
+            }
+        });
+        quizContent.appendChild(btn);
+    });
+    const helpBtn=document.createElement('button');
+    helpBtn.textContent=currentLang==='de'?'Hilfe (100 Münzen)':'Help (100 coins)';
+    helpBtn.addEventListener('click',()=>{
+        const d=getUser(currentUser);
+        if(d.coins>=100){
+            d.coins-=100; saveUser(currentUser,d); quizCoins.textContent=d.coins;
+            let removed=0;
+            document.querySelectorAll('.answer-btn').forEach(b=>{
+                if(b.textContent!==q.answer && removed<2){ b.style.display='none'; removed++; }
+            });
+        }else{
+            alert(currentLang==='de'?'Nicht genug Münzen!':currentLang==='en'?'Not enough coins!':'لا يوجد عملات كافية!');
+        }
+    });
+    quizContent.appendChild(helpBtn);
+    progressFill.style.width=(currentQuizIndex/arr.length*100)+'%';
+}
+
+quizBackBtn.addEventListener('click',()=>{ quizContainer.classList.add('hidden'); showSubtopics(currentTopic); });
+
+if(currentUser) showThemes(); renderUI();
+
+});
+</script>
+
+</body>
+</html>
