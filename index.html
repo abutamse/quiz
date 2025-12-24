@@ -6,49 +6,48 @@
 <title>Quiz App</title>
 
 <style>
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to bottom,#6a11cb,#2575fc);
+body{
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(to bottom,#6a11cb,#2575fc);
   display:flex;
   justify-content:center;
   align-items:center;
   min-height:100vh;
   margin:0;
 }
-.container {
+.container{
   background:white;
   width:95%;
-  max-width:450px;
+  max-width:460px;
   padding:20px;
   border-radius:20px;
   box-shadow:0 10px 25px rgba(0,0,0,.3);
 }
-.hidden { display:none; }
-h2,h3 { text-align:center; margin:10px 0; }
+.hidden{display:none}
+h2,h3{text-align:center;margin:10px 0}
 
-input, button {
+input,button{
   width:100%;
   padding:12px;
   margin-top:8px;
   border-radius:10px;
   font-size:16px;
 }
-input { border:1px solid #ccc; }
-
-button {
+input{border:1px solid #ccc}
+button{
   border:none;
   background:#4CAF50;
   color:white;
   font-weight:bold;
   cursor:pointer;
 }
-button:hover { opacity:.9; }
+button:hover{opacity:.9}
 
-.secondary { background:#2196F3; }
-.danger { background:#f44336; }
-.help { background:#FF9800; }
+.secondary{background:#2196F3}
+.danger{background:#f44336}
+.help{background:#FF9800}
 
-.block {
+.block{
   background:#e2e8f0;
   padding:15px;
   border-radius:15px;
@@ -57,30 +56,30 @@ button:hover { opacity:.9; }
   text-align:center;
   font-weight:bold;
 }
-.block:hover { background:#d1d5db; }
+.block:hover{background:#d1d5db}
 
-.answer {
+.answer{
   background:#f1f5f9;
   color:black;
 }
-.answer:hover { background:#c7d2fe; }
+.answer:hover{background:#c7d2fe}
 
-.lang-bar button {
+.lang-bar button{
   width:auto;
   padding:5px 10px;
   margin:0 3px;
 }
 
-.coin {
+.coin{
   background:#ffecb3;
   padding:5px 10px;
   border-radius:10px;
   font-weight:bold;
 }
 
-[dir="rtl"] {
-  direction: rtl;
-  text-align: right;
+[dir="rtl"]{
+  direction:rtl;
+  text-align:right;
 }
 </style>
 </head>
@@ -94,8 +93,8 @@ button:hover { opacity:.9; }
   <h2 id="loginTitle"></h2>
   <input id="username">
   <input id="password" type="password">
-  <button onclick="loginUser()" id="loginBtn"></button>
-  <button class="secondary" onclick="registerUser()" id="registerBtn"></button>
+  <button id="loginBtn" onclick="loginUser()"></button>
+  <button id="registerBtn" class="secondary" onclick="registerUser()"></button>
   <p id="msg" style="color:red;text-align:center"></p>
 </div>
 
@@ -113,30 +112,30 @@ button:hover { opacity:.9; }
   </div>
 
   <div id="content"></div>
-
-  <button class="danger" onclick="logout()" id="logoutBtn"></button>
+  <button id="logoutBtn" class="danger" onclick="logout()"></button>
 </div>
 
 </div>
 
 <script>
-// ===== STATE =====
+// ===== GLOBAL STATE =====
 let lang='en';
 let user=null;
 let helpUsed=false;
+let screen='topics'; // topics | subs | quiz
 let current={topic:null,sub:null,q:0};
 
-// ===== TRANSLATIONS =====
-const UI = {
+// ===== UI TEXT =====
+const UI={
 en:{login:"Login",register:"Register",user:"Username",pass:"Password",
-topics:"Select Topic",back:"Back",logout:"Logout",help:"Help (100 coins)",
-correct:"Correct!",wrong:"Wrong!",finished:"Quiz finished"},
+topics:"Select Topic",back:"Back",logout:"Logout",
+help:"Help (100 coins)",correct:"Correct!",wrong:"Wrong!",finished:"Quiz finished"},
 de:{login:"Login",register:"Registrieren",user:"Benutzername",pass:"Passwort",
-topics:"Thema wählen",back:"Zurück",logout:"Logout",help:"Hilfe (100 Münzen)",
-correct:"Richtig!",wrong:"Falsch!",finished:"Quiz beendet"},
+topics:"Thema wählen",back:"Zurück",logout:"Logout",
+help:"Hilfe (100 Münzen)",correct:"Richtig!",wrong:"Falsch!",finished:"Quiz beendet"},
 ar:{login:"تسجيل الدخول",register:"تسجيل",user:"اسم المستخدم",pass:"كلمة المرور",
-topics:"اختر الموضوع",back:"رجوع",logout:"تسجيل الخروج",help:"مساعدة (100 عملة)",
-correct:"صحيح!",wrong:"خطأ!",finished:"انتهى الاختبار"}
+topics:"اختر الموضوع",back:"رجوع",logout:"تسجيل الخروج",
+help:"مساعدة (100 عملة)",correct:"صحيح!",wrong:"خطأ!",finished:"انتهى الاختبار"}
 };
 
 // ===== QUESTIONS =====
@@ -146,7 +145,7 @@ Europe:[
 {q:{en:"When did WWII start?",de:"Wann begann der 2. Weltkrieg?",ar:"متى بدأت الحرب العالمية الثانية؟"},
 a:["1939","1941","1918","1925"],c:0},
 {q:{en:"Who was Napoleon?",de:"Wer war Napoleon?",ar:"من كان نابليون؟"},
-a:["French leader","German king","Roman emperor","Spanish explorer"],c:0}
+a:["French leader","German king","Roman emperor","Explorer"],c:0}
 ]},
 Science:{
 Physics:[
@@ -173,10 +172,10 @@ function setLang(l){
   lang=l;
   document.body.dir=(l==="ar"?"rtl":"ltr");
   renderLogin();
-  renderTopics();
+  if(user) renderTopics();
 }
 
-// ===== LOGIN =====
+// ===== LOGIN UI =====
 function renderLogin(){
   loginTitle.textContent=UI[lang].login;
   loginBtn.textContent=UI[lang].login;
@@ -186,9 +185,11 @@ function renderLogin(){
 }
 renderLogin();
 
+// ===== AUTH =====
 function registerUser(){
   if(!username.value||!password.value) return;
-  localStorage.setItem("user_"+username.value,JSON.stringify({pass:password.value,coins:0,done:{}}));
+  localStorage.setItem("user_"+username.value,
+    JSON.stringify({pass:password.value,coins:0,done:{}}));
   loginUser();
 }
 
@@ -203,6 +204,7 @@ function loginUser(){
 
 // ===== TOPICS =====
 function renderTopics(){
+  screen="topics";
   pageTitle.textContent=UI[lang].topics;
   logoutBtn.textContent=UI[lang].logout;
   coins.textContent=getUser(user).coins;
@@ -218,6 +220,7 @@ function renderTopics(){
 
 // ===== SUBTOPICS =====
 function renderSubs(t){
+  screen="subs";
   current.topic=t;
   content.innerHTML="";
   for(const s in DATA[t]){
@@ -227,11 +230,12 @@ function renderSubs(t){
     div.onclick=()=>startQuiz(s);
     content.appendChild(div);
   }
-  backBtn();
+  addBackButton();
 }
 
 // ===== QUIZ =====
 function startQuiz(s){
+  screen="quiz";
   current.sub=s;
   current.q=0;
   showQuestion();
@@ -240,11 +244,13 @@ function startQuiz(s){
 function showQuestion(){
   helpUsed=false;
   const quiz=DATA[current.topic][current.sub];
-  if(current.q>=quiz.length){alert(UI[lang].finished);renderSubs(current.topic);return;}
-
+  if(current.q>=quiz.length){
+    alert(UI[lang].finished);
+    renderSubs(current.topic);
+    return;
+  }
   const q=quiz[current.q];
   content.innerHTML=`<h3>${q.q[lang]}</h3>`;
-
   q.a.forEach((txt,i)=>{
     const b=document.createElement("button");
     b.className="answer";
@@ -252,14 +258,12 @@ function showQuestion(){
     b.onclick=()=>checkAnswer(i);
     content.appendChild(b);
   });
-
-  const help=document.createElement("button");
-  help.className="help";
-  help.textContent=UI[lang].help;
-  help.onclick=useHelp;
-  content.appendChild(help);
-
-  backBtn();
+  const h=document.createElement("button");
+  h.className="help";
+  h.textContent=UI[lang].help;
+  h.onclick=useHelp;
+  content.appendChild(h);
+  addBackButton();
 }
 
 function useHelp(){
@@ -269,11 +273,11 @@ function useHelp(){
   u.coins-=100;
   saveUser(user,u);
   coins.textContent=u.coins;
-
   const buttons=[...document.querySelectorAll(".answer")];
   const correct=DATA[current.topic][current.sub][current.q].c;
   const wrong=buttons.filter((_,i)=>i!==correct);
-  wrong.sort(()=>0.5-Math.random()).slice(0,2).forEach(b=>b.style.display="none");
+  wrong.sort(()=>0.5-Math.random()).slice(0,2)
+       .forEach(b=>b.style.display="none");
   helpUsed=true;
 }
 
@@ -287,17 +291,20 @@ function checkAnswer(i){
     coins.textContent=u.coins;
     current.q++;
     showQuestion();
-  } else alert(UI[lang].wrong);
+  }else alert(UI[lang].wrong);
 }
 
-function backBtn(){
+// ===== BACK BUTTON =====
+function addBackButton(){
   const b=document.createElement("button");
   b.className="secondary";
   b.textContent=UI[lang].back;
-  b.onclick=()=>renderSubs(current.topic);
+  if(screen==="quiz") b.onclick=()=>renderSubs(current.topic);
+  else if(screen==="subs") b.onclick=renderTopics;
   content.appendChild(b);
 }
 
+// ===== LOGOUT =====
 function logout(){location.reload();}
 </script>
 
