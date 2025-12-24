@@ -57,10 +57,12 @@ button:hover { background:#45a049; transform:scale(1.02); }
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded', ()=>{
 let currentLang = 'de';
 let currentUser = localStorage.getItem('currentUser');
-let currentTopic, currentSubtopic, currentQuizIndex;
+let currentTopic = '';
+let currentSubtopic = '';
+let currentQuizIndex = 0;
 
 const loginContainer = document.getElementById('login-container');
 const themeContainer = document.getElementById('theme-container');
@@ -83,110 +85,123 @@ const progressFill = document.getElementById('progress-fill');
 const quizBackBtn = document.getElementById('quiz-back-btn');
 
 const topics = {
-  "Geschichte": {"Deutschland":[{q:{de:"Wann begann der 2. Weltkrieg?",en:"When did WWII start?",ar:"متى بدأ الحرب العالمية الثانية؟"},options:["1939","1945","1914","1923"],answer:"1939"},{q:{de:"Wer war der erste Bundeskanzler?",en:"Who was the first chancellor?",ar:"من كان المستشار الأول؟"},options:["Konrad Adenauer","Helmut Kohl","Angela Merkel","Willy Brandt"],answer:"Konrad Adenauer"}]},
-  "Wissenschaft": {"Physik":[{q:{de:"Wer entwickelte die Relativitätstheorie?",en:"Who developed the theory of relativity?",ar:"من طور نظرية النسبية؟"},options:["Einstein","Newton","Tesla","Galileo"],answer:"Einstein"}]},
-  "Geographie": {"Kontinente":[{q:{de:"Welcher ist der größte Kontinent?",en:"Which is the largest continent?",ar:"أي قارة هي الأكبر؟"},options:["Asien","Afrika","Europa","Antarktika"],answer:"Asien"}]} 
+  "Geschichte": {
+    "Deutschland": [
+      {q:{de:"Wann begann der 2. Weltkrieg?", en:"When did WWII start?", ar:"متى بدأ الحرب العالمية الثانية؟"}, options:["1939","1945","1914","1923"], answer:"1939"},
+      {q:{de:"Wer war der erste Bundeskanzler Deutschlands?", en:"Who was the first chancellor?", ar:"من كان المستشار الأول؟"}, options:["Konrad Adenauer","Helmut Kohl","Angela Merkel","Willy Brandt"], answer:"Konrad Adenauer"}
+    ]
+  },
+  "Wissenschaft": {
+    "Physik": [
+      {q:{de:"Wer entwickelte die Relativitätstheorie?", en:"Who developed the theory of relativity?", ar:"من طور نظرية النسبية؟"}, options:["Einstein","Newton","Tesla","Galileo"], answer:"Einstein"}
+    ]
+  },
+  "Geographie": {
+    "Kontinente": [
+      {q:{de:"Welcher ist der größte Kontinent?", en:"Which is the largest continent?", ar:"أي قارة هي الأكبر؟"}, options:["Asien","Afrika","Europa","Antarktika"], answer:"Asien"}
+    ]
+  }
 };
 
-function getUser(username){return JSON.parse(localStorage.getItem('user_'+username));}
-function saveUser(username,data){localStorage.setItem('user_'+username,JSON.stringify(data));}
+function getUser(username){ return JSON.parse(localStorage.getItem('user_' + username)); }
+function saveUser(username, data){ localStorage.setItem('user_' + username, JSON.stringify(data)); }
 
-langButtons.forEach(btn=>btn.addEventListener('click',()=>{currentLang=btn.dataset.lang; renderUI(); if(!themeContainer.classList.contains('hidden')) showThemes();}));
+langButtons.forEach(btn => btn.addEventListener('click', ()=>{ currentLang = btn.dataset.lang; renderUI(); if(!themeContainer.classList.contains('hidden')) showThemes(); }));
 
 function renderUI(){
-if(currentLang==='de'){title.textContent='Login / Registrierung'; loginBtn.textContent='Login'; registerBtn.textContent='Registrieren'; logoutBtn.textContent='Logout'; themeTitle.textContent='Themen auswählen'; quizBackBtn.textContent='Zurück';}
-else if(currentLang==='en'){title.textContent='Login / Register'; loginBtn.textContent='Login'; registerBtn.textContent='Register'; logoutBtn.textContent='Logout'; themeTitle.textContent='Select Topics'; quizBackBtn.textContent='Back';}
-else if(currentLang==='ar'){title.textContent='تسجيل الدخول / التسجيل'; loginBtn.textContent='تسجيل الدخول'; registerBtn.textContent='تسجيل'; logoutBtn.textContent='تسجيل الخروج'; themeTitle.textContent='اختر الموضوع'; quizBackBtn.textContent='عودة';}
+  if(currentLang==='de'){ title.textContent='Login / Registrierung'; loginBtn.textContent='Login'; registerBtn.textContent='Registrieren'; logoutBtn.textContent='Logout'; themeTitle.textContent='Themen auswählen'; quizBackBtn.textContent='Zurück'; }
+  else if(currentLang==='en'){ title.textContent='Login / Register'; loginBtn.textContent='Login'; registerBtn.textContent='Register'; logoutBtn.textContent='Logout'; themeTitle.textContent='Select Topics'; quizBackBtn.textContent='Back'; }
+  else if(currentLang==='ar'){ title.textContent='تسجيل الدخول / التسجيل'; loginBtn.textContent='تسجيل الدخول'; registerBtn.textContent='تسجيل'; logoutBtn.textContent='تسجيل الخروج'; themeTitle.textContent='اختر الموضوع'; quizBackBtn.textContent='عودة'; }
 }
 
-registerBtn.addEventListener('click',()=>{
-let username=usernameInput.value.trim(); let password=passwordInput.value.trim();
-if(!username||!password){loginMsg.textContent=(currentLang==='de')?'Bitte ausfüllen!':(currentLang==='en')?'Please fill in!':'الرجاء إدخال البيانات'; return;}
-if(localStorage.getItem('user_'+username)){loginMsg.textContent=(currentLang==='de')?'Benutzer existiert schon!':(currentLang==='en')?'User already exists!':'المستخدم موجود بالفعل'; return;}
-localStorage.setItem('user_'+username,JSON.stringify({password,coins:0,progress:{}}));
-localStorage.setItem('currentUser',username); currentUser=username;
-showThemes();
+registerBtn.addEventListener('click', ()=>{
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+  if(!username || !password){ loginMsg.textContent = currentLang==='de'?'Bitte ausfüllen!':currentLang==='en'?'Please fill in!':'الرجاء إدخال البيانات'; return; }
+  if(localStorage.getItem('user_'+username)){ loginMsg.textContent = currentLang==='de'?'Benutzer existiert schon!':currentLang==='en'?'User already exists!':'المستخدم موجود بالفعل'; return; }
+  saveUser(username, {password, coins:0, progress:{}});
+  localStorage.setItem('currentUser', username); currentUser=username;
+  loginMsg.textContent='';
+  showThemes();
 });
 
-loginBtn.addEventListener('click',()=>{
-let username=usernameInput.value.trim(); let password=passwordInput.value.trim();
-let userData=getUser(username);
-if(!userData){loginMsg.textContent=(currentLang==='de')?'Benutzer nicht gefunden!':(currentLang==='en')?'User not found!':'المستخدم غير موجود'; return;}
-if(userData.password!==password){loginMsg.textContent=(currentLang==='de')?'Falsches Passwort!':(currentLang==='en')?'Wrong password!':'كلمة المرور خاطئة'; return;}
-localStorage.setItem('currentUser',username); currentUser=username;
-showThemes();
+loginBtn.addEventListener('click', ()=>{
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+  const userData = getUser(username);
+  if(!userData){ loginMsg.textContent = currentLang==='de'?'Benutzer nicht gefunden!':currentLang==='en'?'User not found!':'المستخدم غير موجود'; return; }
+  if(userData.password !== password){ loginMsg.textContent = currentLang==='de'?'Falsches Passwort!':currentLang==='en'?'Wrong password!':'كلمة المرور خاطئة'; return; }
+  localStorage.setItem('currentUser', username); currentUser=username;
+  loginMsg.textContent='';
+  showThemes();
 });
 
-logoutBtn.addEventListener('click',()=>{localStorage.removeItem('currentUser'); location.reload();});
+logoutBtn.addEventListener('click', ()=>{ localStorage.removeItem('currentUser'); location.reload(); });
 
 function showThemes(){
-loginContainer.classList.add('hidden'); themeContainer.classList.remove('hidden');
-const userData=getUser(currentUser); coinsSpan.textContent=userData.coins;
-themesDiv.innerHTML='';
-for(const topic in topics){
-const div=document.createElement('div'); div.className='theme-block'; div.textContent=topic;
-div.addEventListener('click',()=>showSubtopics(topic));
-themesDiv.appendChild(div);
-}
+  loginContainer.classList.add('hidden'); themeContainer.classList.remove('hidden');
+  const userData = getUser(currentUser); coinsSpan.textContent = userData.coins;
+  themesDiv.innerHTML='';
+  for(const topic in topics){
+    const div = document.createElement('div'); div.className='theme-block'; div.textContent=topic;
+    div.addEventListener('click', ()=>showSubtopics(topic));
+    themesDiv.appendChild(div);
+  }
 }
 
 function showSubtopics(topic){
-currentTopic=topic; themesDiv.innerHTML='';
-for(const sub in topics[topic]){
-const div=document.createElement('div'); div.className='subtheme-block'; div.textContent=sub;
-div.addEventListener('click',()=>startQuiz(sub));
-themesDiv.appendChild(div);
-}
+  currentTopic = topic; themesDiv.innerHTML='';
+  for(const sub in topics[topic]){
+    const div = document.createElement('div'); div.className='subtheme-block'; div.textContent=sub;
+    div.addEventListener('click', ()=>startQuiz(sub));
+    themesDiv.appendChild(div);
+  }
 }
 
 function startQuiz(subtopic){
-currentSubtopic=subtopic;
-const userData=getUser(currentUser);
-const progressKey=currentTopic+'_'+currentSubtopic;
-currentQuizIndex=userData.progress[progressKey]||0;
-themeContainer.classList.add('hidden'); quizContainer.classList.remove('hidden');
-quizTopic.textContent=currentTopic+' - '+currentSubtopic;
-quizCoins.textContent=userData.coins;
-renderQuiz();
+  currentSubtopic = subtopic;
+  const userData = getUser(currentUser);
+  const progressKey = currentTopic+'_'+currentSubtopic;
+  currentQuizIndex = userData.progress[progressKey] || 0;
+  themeContainer.classList.add('hidden'); quizContainer.classList.remove('hidden');
+  quizTopic.textContent = currentTopic+' - '+currentSubtopic;
+  quizCoins.textContent = userData.coins;
+  renderQuiz();
 }
 
 function renderQuiz(){
-const quizArr=topics[currentTopic][currentSubtopic];
-if(currentQuizIndex>=quizArr.length){
-alert((currentLang==='de')?'Quiz beendet! +20 Coins':'Quiz finished! +20 coins');
-const userData=getUser(currentUser); userData.coins+=20;
-saveUser(currentUser,userData); quizCoins.textContent=userData.coins;
-quizContainer.classList.add('hidden'); showSubtopics(currentTopic); return;
-}
-const q=quizArr[currentQuizIndex];
-let options=[...q.options]; options.sort(()=>Math.random()-0.5);
-quizContent.innerHTML='';
-options.forEach(opt=>{
-const btn=document.createElement('button'); btn.className='answer-btn'; btn.textContent=opt;
-btn.addEventListener('click',()=>{
-const userData=getUser(currentUser);
-if(opt===q.answer){
-alert((currentLang==='de')?'Richtig!':(currentLang==='en')?'Correct!':'صحيح!');
-userData.coins+=25; userData.progress[currentTopic+'_'+currentSubtopic]=currentQuizIndex+1;
-saveUser(currentUser,userData); quizCoins.textContent=userData.coins; currentQuizIndex++; renderQuiz();
-}else{alert((currentLang==='de')?'Falsch!':(currentLang==='en')?'Wrong!':'خطأ!');}
-}); quizContent.appendChild(btn);
-});
-const helpBtn=document.createElement('button'); helpBtn.textContent=(currentLang==='de')?'Hilfe (100 Münzen)':'Help (100 coins)';
-helpBtn.addEventListener('click',()=>{
-const userData=getUser(currentUser);
-if(userData.coins>=100){userData.coins-=100; saveUser(currentUser,userData); quizCoins.textContent=userData.coins;
-let removed=0; document.querySelectorAll('.answer-btn').forEach(btn=>{if(btn.textContent!==q.answer && removed<2){btn.style.display='none'; removed++;}});
-}else{alert((currentLang==='de')?'Nicht genug Münzen!':(currentLang==='en')?'Not enough coins!':'لا يوجد عملات كافية!');}
-});
-quizContent.appendChild(helpBtn);
-const progressPercent=(currentQuizIndex/quizArr.length)*100; progressFill.style.width=progressPercent+'%';
+  const quizArr = topics[currentTopic][currentSubtopic];
+  if(currentQuizIndex >= quizArr.length){
+    alert(currentLang==='de'?'Quiz beendet! +20 Coins':currentLang==='en'?'Quiz finished! +20 coins':'تم الانتهاء من الاختبار +20 عملات');
+    const userData = getUser(currentUser); userData.coins +=20; saveUser(currentUser,userData); quizCoins.textContent = userData.coins;
+    quizContainer.classList.add('hidden'); showSubtopics(currentTopic); return;
+  }
+  const q = quizArr[currentQuizIndex];
+  let options = [...q.options]; options.sort(()=>Math.random()-0.5);
+  quizContent.innerHTML='';
+  options.forEach(opt=>{
+    const btn = document.createElement('button'); btn.className='answer-btn'; btn.textContent=opt;
+    btn.addEventListener('click', ()=>{
+      const userData = getUser(currentUser);
+      if(opt===q.answer){
+        alert(currentLang==='de'?'Richtig!':currentLang==='en'?'Correct!':'صحيح!');
+        userData.coins += 25; userData.progress[currentTopic+'_'+currentSubtopic] = currentQuizIndex+1; saveUser(currentUser,userData); quizCoins.textContent=userData.coins; currentQuizIndex++; renderQuiz();
+      } else { alert(currentLang==='de'?'Falsch!':currentLang==='en'?'Wrong!':'خطأ!'); }
+    }); quizContent.appendChild(btn);
+  });
+  const helpBtn = document.createElement('button'); helpBtn.textContent = currentLang==='de'?'Hilfe (100 Münzen)':'Help (100 coins)';
+  helpBtn.addEventListener('click', ()=>{
+    const userData = getUser(currentUser);
+    if(userData.coins >= 100){ userData.coins -= 100; saveUser(currentUser,userData); quizCoins.textContent = userData.coins;
+      let removed=0; document.querySelectorAll('.answer-btn').forEach(btn=>{ if(btn.textContent!==q.answer && removed<2){ btn.style.display='none'; removed++; } });
+    } else { alert(currentLang==='de'?'Nicht genug Münzen!':currentLang==='en'?'Not enough coins!':'لا يوجد عملات كافية!'); }
+  }); quizContent.appendChild(helpBtn);
+  progressFill.style.width = (currentQuizIndex/quizArr.length*100)+'%';
 }
 
-quizBackBtn.addEventListener('click',()=>{quizContainer.classList.add('hidden'); showSubtopics(currentTopic);});
+quizBackBtn.addEventListener('click', ()=>{ quizContainer.classList.add('hidden'); showSubtopics(currentTopic); });
 
 if(currentUser) showThemes(); renderUI();
-});
 </script>
 
 </body>
