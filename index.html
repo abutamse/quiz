@@ -1,312 +1,220 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quiz App</title>
-
 <style>
-body{
-  font-family:'Segoe UI',sans-serif;
-  background:linear-gradient(to bottom,#6a11cb,#2575fc);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  margin:0;
-}
-.container{
-  background:white;
-  width:95%;
-  max-width:460px;
-  padding:20px;
-  border-radius:20px;
-  box-shadow:0 10px 25px rgba(0,0,0,.3);
-}
-.hidden{display:none}
-h2,h3{text-align:center;margin:10px 0}
-
-input,button{
-  width:100%;
-  padding:12px;
-  margin-top:8px;
-  border-radius:10px;
-  font-size:16px;
-}
-input{border:1px solid #ccc}
-button{
-  border:none;
-  background:#4CAF50;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
-button:hover{opacity:.9}
-
-.secondary{background:#2196F3}
-.danger{background:#f44336}
-.help{background:#FF9800}
-
-.block{
-  background:#e2e8f0;
-  padding:15px;
-  border-radius:15px;
-  margin-top:10px;
-  cursor:pointer;
-  text-align:center;
-  font-weight:bold;
-}
-.block:hover{background:#d1d5db}
-
-.answer{
-  background:#f1f5f9;
-  color:black;
-}
-.answer:hover{background:#c7d2fe}
-
-.lang-bar button{
-  width:auto;
-  padding:5px 10px;
-  margin:0 3px;
-}
-
-.coin{
-  background:#ffecb3;
-  padding:5px 10px;
-  border-radius:10px;
-  font-weight:bold;
-}
-
-[dir="rtl"]{
-  direction:rtl;
-  text-align:right;
-}
+body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0; background: linear-gradient(to bottom,#6a11cb,#2575fc); display:flex; justify-content:center; align-items:center; min-height:100vh; }
+.container { background:white; padding:20px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.3); width:95%; max-width:500px; transition: all 0.3s ease; }
+h2,h3 { text-align:center; margin:10px 0; color:#333; }
+button { width:100%; padding:12px; margin-top:10px; border:none; border-radius:10px; background:#4CAF50; color:white; font-weight:bold; cursor:pointer; font-size:16px; transition: all 0.2s ease; }
+button:hover { background:#45a049; transform:scale(1.02); }
+.hidden { display:none; }
+.theme-block, .subtheme-block, .answer-btn { padding:18px; background:#e2e8f0; margin:10px 0; border-radius:15px; cursor:pointer; text-align:center; font-weight:bold; font-size:18px; transition: all 0.2s ease; }
+.theme-block:hover, .subtheme-block:hover, .answer-btn:hover { background:#d1d5db; transform:scale(1.02); }
+.flex { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.lang-btn { width:auto; padding:5px 10px; margin:0 5px; font-size:14px; background:#007BFF; color:white; border-radius:5px; cursor:pointer; }
+.lang-btn:hover { background:#0056b3; transform:scale(1.05); }
+.coin-display { font-weight:bold; background:#ffecb3; padding:5px 10px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.2); }
+.progress-bar { width:100%; background:#ddd; border-radius:10px; overflow:hidden; margin-bottom:15px; height:20px; }
+.progress-fill { height:100%; background:#4caf50; width:0%; transition: width 0.3s; }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
-<!-- LOGIN -->
-<div id="login">
-  <h2 id="loginTitle"></h2>
-  <input id="username">
-  <input id="password" type="password">
-  <button id="loginBtn" onclick="loginUser()"></button>
-  <button id="registerBtn" class="secondary" onclick="registerUser()"></button>
-  <p id="msg" style="color:red;text-align:center"></p>
+<div class="container" id="login-container">
+    <h2 id="title">Login / Registrierung</h2>
+    <input type="text" id="username" placeholder="Benutzername">
+    <input type="password" id="password" placeholder="Passwort">
+    <button id="login-btn">Login</button>
+    <button id="register-btn">Registrieren</button>
+    <p id="login-msg" style="color:red; text-align:center;"></p>
 </div>
 
-<!-- APP -->
-<div id="app" class="hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <h3 id="pageTitle"></h3>
-    <div class="coin">💰 <span id="coins">0</span></div>
-  </div>
-
-  <div class="lang-bar">
-    <button onclick="setLang('de')">DE</button>
-    <button onclick="setLang('en')">EN</button>
-    <button onclick="setLang('ar')">AR</button>
-  </div>
-
-  <div id="content"></div>
-  <button id="logoutBtn" class="danger" onclick="logout()"></button>
+<div class="container hidden" id="theme-container">
+    <div class="flex">
+        <h2 id="theme-title">Themen auswählen</h2>
+        <div class="coin-display">Coins: <span id="coins">0</span>💰</div>
+    </div>
+    <div id="lang-switch">
+        <button class="lang-btn" data-lang="de">DE</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="ar">AR</button>
+    </div>
+    <div id="themes"></div>
+    <button id="logout-btn" style="background:#f44336;">Logout</button>
 </div>
 
+<div class="container hidden" id="quiz-container">
+    <div class="flex">
+        <h2 id="quiz-topic"></h2>
+        <div class="coin-display">Coins: <span id="quiz-coins">0</span>💰</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div id="quiz-content"></div>
+    <button id="quiz-back-btn" style="background:#f44336;">Zurück</button>
 </div>
 
 <script>
-// ===== GLOBAL STATE =====
-let lang='en';
-let user=null;
-let helpUsed=false;
-let screen='topics'; // topics | subs | quiz
-let current={topic:null,sub:null,q:0};
+let currentLang = 'de';
+let currentUser = localStorage.getItem('currentUser');
+let currentTopic, currentSubtopic, currentQuizIndex;
 
-// ===== UI TEXT =====
-const UI={
-en:{login:"Login",register:"Register",user:"Username",pass:"Password",
-topics:"Select Topic",back:"Back",logout:"Logout",
-help:"Help (100 coins)",correct:"Correct!",wrong:"Wrong!",finished:"Quiz finished"},
-de:{login:"Login",register:"Registrieren",user:"Benutzername",pass:"Passwort",
-topics:"Thema wählen",back:"Zurück",logout:"Logout",
-help:"Hilfe (100 Münzen)",correct:"Richtig!",wrong:"Falsch!",finished:"Quiz beendet"},
-ar:{login:"تسجيل الدخول",register:"تسجيل",user:"اسم المستخدم",pass:"كلمة المرور",
-topics:"اختر الموضوع",back:"رجوع",logout:"تسجيل الخروج",
-help:"مساعدة (100 عملة)",correct:"صحيح!",wrong:"خطأ!",finished:"انتهى الاختبار"}
+const loginContainer = document.getElementById('login-container');
+const themeContainer = document.getElementById('theme-container');
+const quizContainer = document.getElementById('quiz-container');
+const loginMsg = document.getElementById('login-msg');
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('login-btn');
+const registerBtn = document.getElementById('register-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const themesDiv = document.getElementById('themes');
+const coinsSpan = document.getElementById('coins');
+const langButtons = document.querySelectorAll('.lang-btn');
+const title = document.getElementById('title');
+const themeTitle = document.getElementById('theme-title');
+const quizTopic = document.getElementById('quiz-topic');
+const quizCoins = document.getElementById('quiz-coins');
+const quizContent = document.getElementById('quiz-content');
+const progressFill = document.getElementById('progress-fill');
+const quizBackBtn = document.getElementById('quiz-back-btn');
+
+const topics = {
+  "Geschichte": {
+    "Deutschland": [
+      {q:{de:"Wann begann der 2. Weltkrieg?", en:"When did WWII start?", ar:"متى بدأ الحرب العالمية الثانية؟"}, options:["1939","1945","1914","1923"], answer:"1939"},
+      {q:{de:"Wer war der erste Bundeskanzler?", en:"Who was the first chancellor?", ar:"من كان المستشار الأول؟"}, options:["Konrad Adenauer","Helmut Kohl","Angela Merkel","Willy Brandt"], answer:"Konrad Adenauer"}
+    ],
+    "Europa": [
+      {q:{de:"Wann begann der 1. Weltkrieg?", en:"When did WWI start?", ar:"متى بدأ الحرب العالمية الأولى؟"}, options:["1914","1939","1918","1945"], answer:"1914"}
+    ]
+  },
+  "Wissenschaft": {
+    "Physik": [
+      {q:{de:"Wer entwickelte die Relativitätstheorie?", en:"Who developed the theory of relativity?", ar:"من طور نظرية النسبية؟"}, options:["Einstein","Newton","Tesla","Galileo"], answer:"Einstein"}
+    ],
+    "Biologie": [
+      {q:{de:"Wie viele Chromosomen hat der Mensch?", en:"How many chromosomes does a human have?", ar:"كم عدد الكروموسومات لدى الإنسان؟"}, options:["46","23","44","22"], answer:"46"}
+    ]
+  },
+  "Geographie": {
+    "Kontinente": [
+      {q:{de:"Welcher ist der größte Kontinent?", en:"Which is the largest continent?", ar:"أي قارة هي الأكبر؟"}, options:["Asien","Afrika","Europa","Antarktika"], answer:"Asien"},
+      {q:{de:"Welcher ist der kleinste Kontinent?", en:"Which is the smallest continent?", ar:"أي قارة هي الأصغر؟"}, options:["Australien","Europa","Antarktika","Südamerika"], answer:"Australien"}
+    ]
+  }
 };
 
-// ===== QUESTIONS =====
-const DATA={
-History:{
-Europe:[
-{q:{en:"When did WWII start?",de:"Wann begann der 2. Weltkrieg?",ar:"متى بدأت الحرب العالمية الثانية؟"},
-a:["1939","1941","1918","1925"],c:0},
-{q:{en:"Who was Napoleon?",de:"Wer war Napoleon?",ar:"من كان نابليون؟"},
-a:["French leader","German king","Roman emperor","Explorer"],c:0}
-]},
-Science:{
-Physics:[
-{q:{en:"Who developed relativity?",de:"Wer entwickelte die Relativitätstheorie?",ar:"من طور نظرية النسبية؟"},
-a:["Einstein","Newton","Tesla","Galileo"],c:0},
-{q:{en:"Speed of light?",de:"Lichtgeschwindigkeit?",ar:"سرعة الضوء؟"},
-a:["300,000 km/s","150,000 km/s","1,000 km/s","3,000 km/s"],c:0}
-]},
-Geography:{
-World:[
-{q:{en:"Largest ocean?",de:"Größter Ozean?",ar:"أكبر محيط؟"},
-a:["Pacific","Atlantic","Indian","Arctic"],c:0},
-{q:{en:"Capital of Japan?",de:"Hauptstadt von Japan?",ar:"عاصمة اليابان؟"},
-a:["Tokyo","Kyoto","Osaka","Beijing"],c:0}
-]}
-};
+function getUser(username){ return JSON.parse(localStorage.getItem('user_' + username)); }
+function saveUser(username, data){ localStorage.setItem('user_' + username, JSON.stringify(data)); }
 
-// ===== STORAGE =====
-const getUser=u=>JSON.parse(localStorage.getItem("user_"+u));
-const saveUser=(u,d)=>localStorage.setItem("user_"+u,JSON.stringify(d));
+langButtons.forEach(btn=>btn.addEventListener('click',()=>{currentLang=btn.dataset.lang; renderUI(); if(!themeContainer.classList.contains('hidden')) showThemes();}));
 
-// ===== LANGUAGE =====
-function setLang(l){
-  lang=l;
-  document.body.dir=(l==="ar"?"rtl":"ltr");
-  renderLogin();
-  if(user) renderTopics();
+function renderUI(){
+  if(currentLang==='de'){title.textContent='Login / Registrierung'; loginBtn.textContent='Login'; registerBtn.textContent='Registrieren'; logoutBtn.textContent='Logout'; themeTitle.textContent='Themen auswählen'; quizBackBtn.textContent='Zurück';}
+  else if(currentLang==='en'){title.textContent='Login / Register'; loginBtn.textContent='Login'; registerBtn.textContent='Register'; logoutBtn.textContent='Logout'; themeTitle.textContent='Select Topics'; quizBackBtn.textContent='Back';}
+  else if(currentLang==='ar'){title.textContent='تسجيل الدخول / التسجيل'; loginBtn.textContent='تسجيل الدخول'; registerBtn.textContent='تسجيل'; logoutBtn.textContent='تسجيل الخروج'; themeTitle.textContent='اختر الموضوع'; quizBackBtn.textContent='عودة';}
 }
 
-// ===== LOGIN UI =====
-function renderLogin(){
-  loginTitle.textContent=UI[lang].login;
-  loginBtn.textContent=UI[lang].login;
-  registerBtn.textContent=UI[lang].register;
-  username.placeholder=UI[lang].user;
-  password.placeholder=UI[lang].pass;
-}
-renderLogin();
+registerBtn.addEventListener('click',()=>{
+  const username=usernameInput.value.trim(); const password=passwordInput.value.trim();
+  if(!username||!password){loginMsg.textContent=(currentLang==='de')?'Bitte ausfüllen!':(currentLang==='en')?'Please fill in!':'الرجاء إدخال البيانات'; return;}
+  if(localStorage.getItem('user_'+username)){loginMsg.textContent=(currentLang==='de')?'Benutzer existiert schon!':(currentLang==='en')?'User already exists!':'المستخدم موجود بالفعل'; return;}
+  localStorage.setItem('user_'+username, JSON.stringify({password, coins:0, progress:{}}));
+  localStorage.setItem('currentUser', username); currentUser=username;
+  showThemes();
+});
 
-// ===== AUTH =====
-function registerUser(){
-  if(!username.value||!password.value) return;
-  localStorage.setItem("user_"+username.value,
-    JSON.stringify({pass:password.value,coins:0,done:{}}));
-  loginUser();
-}
+loginBtn.addEventListener('click',()=>{
+  const username=usernameInput.value.trim(); const password=passwordInput.value.trim();
+  const userData=getUser(username);
+  if(!userData){loginMsg.textContent=(currentLang==='de')?'Benutzer nicht gefunden!':(currentLang==='en')?'User not found!':'المستخدم غير موجود'; return;}
+  if(userData.password!==password){loginMsg.textContent=(currentLang==='de')?'Falsches Passwort!':(currentLang==='en')?'Wrong password!':'كلمة المرور خاطئة'; return;}
+  localStorage.setItem('currentUser', username); currentUser=username;
+  showThemes();
+});
 
-function loginUser(){
-  const d=getUser(username.value);
-  if(!d||d.pass!==password.value){msg.textContent="Error";return;}
-  user=username.value;
-  login.classList.add("hidden");
-  app.classList.remove("hidden");
-  renderTopics();
-}
+logoutBtn.addEventListener('click',()=>{localStorage.removeItem('currentUser'); location.reload();});
 
-// ===== TOPICS =====
-function renderTopics(){
-  screen="topics";
-  pageTitle.textContent=UI[lang].topics;
-  logoutBtn.textContent=UI[lang].logout;
-  coins.textContent=getUser(user).coins;
-  content.innerHTML="";
-  for(const t in DATA){
-    const div=document.createElement("div");
-    div.className="block";
-    div.textContent=t;
-    div.onclick=()=>renderSubs(t);
-    content.appendChild(div);
+function showThemes(){
+  loginContainer.classList.add('hidden'); themeContainer.classList.remove('hidden');
+  const userData=getUser(currentUser); coinsSpan.textContent=userData.coins;
+  themesDiv.innerHTML='';
+  for(const topic in topics){
+    const div=document.createElement('div'); div.className='theme-block'; div.textContent=topic;
+    div.addEventListener('click',()=>showSubtopics(topic));
+    themesDiv.appendChild(div);
   }
 }
 
-// ===== SUBTOPICS =====
-function renderSubs(t){
-  screen="subs";
-  current.topic=t;
-  content.innerHTML="";
-  for(const s in DATA[t]){
-    const div=document.createElement("div");
-    div.className="block";
-    div.textContent=s;
-    div.onclick=()=>startQuiz(s);
-    content.appendChild(div);
+function showSubtopics(topic){
+  currentTopic=topic; themesDiv.innerHTML='';
+  for(const sub in topics[topic]){
+    const div=document.createElement('div'); div.className='subtheme-block'; div.textContent=sub;
+    div.addEventListener('click',()=>startQuiz(sub));
+    themesDiv.appendChild(div);
   }
-  addBackButton();
 }
 
-// ===== QUIZ =====
-function startQuiz(s){
-  screen="quiz";
-  current.sub=s;
-  current.q=0;
-  showQuestion();
+function startQuiz(subtopic){
+  currentSubtopic=subtopic;
+  const userData=getUser(currentUser);
+  const progressKey=currentTopic+'_'+currentSubtopic;
+  currentQuizIndex=userData.progress[progressKey]||0;
+  themeContainer.classList.add('hidden'); quizContainer.classList.remove('hidden');
+  quizTopic.textContent=currentTopic+' - '+currentSubtopic;
+  quizCoins.textContent=userData.coins;
+  renderQuiz();
 }
 
-function showQuestion(){
-  helpUsed=false;
-  const quiz=DATA[current.topic][current.sub];
-  if(current.q>=quiz.length){
-    alert(UI[lang].finished);
-    renderSubs(current.topic);
-    return;
+function renderQuiz(){
+  const quizArr=topics[currentTopic][currentSubtopic];
+  if(currentQuizIndex>=quizArr.length){
+    alert((currentLang==='de')?'Quiz beendet! +20 Coins':'Quiz finished! +20 coins');
+    const userData=getUser(currentUser); userData.coins+=20;
+    saveUser(currentUser,userData); quizCoins.textContent=userData.coins;
+    quizContainer.classList.add('hidden'); showSubtopics(currentTopic); return;
   }
-  const q=quiz[current.q];
-  content.innerHTML=`<h3>${q.q[lang]}</h3>`;
-  q.a.forEach((txt,i)=>{
-    const b=document.createElement("button");
-    b.className="answer";
-    b.textContent=txt;
-    b.onclick=()=>checkAnswer(i);
-    content.appendChild(b);
+  const q=quizArr[currentQuizIndex];
+  let options=[...q.options];
+  options.sort(()=>Math.random()-0.5);
+  quizContent.innerHTML='';
+  options.forEach(opt=>{
+    const btn=document.createElement('button'); btn.className='answer-btn'; btn.textContent=opt;
+    btn.addEventListener('click',()=>{
+      const userData=getUser(currentUser);
+      if(opt===q.answer){
+        alert((currentLang==='de')?'Richtig!':(currentLang==='en')?'Correct!':'صحيح!');
+        userData.coins+=25;
+        userData.progress[currentTopic+'_'+currentSubtopic]=currentQuizIndex+1;
+        saveUser(currentUser,userData); quizCoins.textContent=userData.coins;
+        currentQuizIndex++; renderQuiz();
+      } else{
+        alert((currentLang==='de')?'Falsch!':(currentLang==='en')?'Wrong!':'خطأ!');
+      }
+    });
+    quizContent.appendChild(btn);
   });
-  const h=document.createElement("button");
-  h.className="help";
-  h.textContent=UI[lang].help;
-  h.onclick=useHelp;
-  content.appendChild(h);
-  addBackButton();
+
+  const helpBtn=document.createElement('button'); helpBtn.textContent=(currentLang==='de')?'Hilfe (100 Münzen)':'Help (100 coins)';
+  helpBtn.addEventListener('click',()=>{
+    const userData=getUser(currentUser);
+    if(userData.coins>=100){
+      userData.coins-=100; saveUser(currentUser,userData); quizCoins.textContent=userData.coins;
+      let removed=0;
+      document.querySelectorAll('.answer-btn').forEach(btn=>{ if(btn.textContent!==q.answer && removed<2){btn.style.display='none'; removed++;}});
+    } else{
+      alert((currentLang==='de')?'Nicht genug Münzen!':(currentLang==='en')?'Not enough coins!':'لا يوجد عملات كافية!');
+    }
+  });
+  quizContent.appendChild(helpBtn);
+
+  const progressPercent=((currentQuizIndex)/quizArr.length)*100;
+  progressFill.style.width=progressPercent+'%';
 }
 
-function useHelp(){
-  if(helpUsed) return;
-  const u=getUser(user);
-  if(u.coins<100) return;
-  u.coins-=100;
-  saveUser(user,u);
-  coins.textContent=u.coins;
-  const buttons=[...document.querySelectorAll(".answer")];
-  const correct=DATA[current.topic][current.sub][current.q].c;
-  const wrong=buttons.filter((_,i)=>i!==correct);
-  wrong.sort(()=>0.5-Math.random()).slice(0,2)
-       .forEach(b=>b.style.display="none");
-  helpUsed=true;
-}
+quizBackBtn.addEventListener('click',()=>{quizContainer.classList.add('hidden'); showSubtopics(currentTopic);});
 
-function checkAnswer(i){
-  const u=getUser(user);
-  const key=current.topic+current.sub+current.q;
-  if(i===DATA[current.topic][current.sub][current.q].c){
-    alert(UI[lang].correct);
-    if(!u.done[key]){u.coins+=25;u.done[key]=1;}
-    saveUser(user,u);
-    coins.textContent=u.coins;
-    current.q++;
-    showQuestion();
-  }else alert(UI[lang].wrong);
-}
-
-// ===== BACK BUTTON =====
-function addBackButton(){
-  const b=document.createElement("button");
-  b.className="secondary";
-  b.textContent=UI[lang].back;
-  if(screen==="quiz") b.onclick=()=>renderSubs(current.topic);
-  else if(screen==="subs") b.onclick=renderTopics;
-  content.appendChild(b);
-}
-
-// ===== LOGOUT =====
-function logout(){location.reload();}
-</script>
-
-</body>
-</html>
+if(currentUser) showThemes(); renderUI();
