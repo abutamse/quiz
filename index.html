@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Big Quiz</title>
-
 <style>
 body{
   font-family:'Segoe UI',Tahoma,sans-serif;
@@ -63,6 +62,10 @@ button{
   font-size:14px;
   background:#007BFF;
   margin:0 3px;
+  color:white;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
 }
 .progress{
   width:100%;
@@ -89,22 +92,23 @@ input{
 }
 </style>
 </head>
-
 <body>
 
 <!-- LOGIN -->
 <div class="container" id="loginBox">
-  <h2>Login / Registrierung</h2>
-  <input placeholder="Benutzername">
-  <input type="password" placeholder="Passwort">
-  <button onclick="login()">Login</button>
+  <h2 id="loginTitle">Login / Registrierung</h2>
+  <input id="username" placeholder="Benutzername">
+  <input id="password" type="password" placeholder="Passwort">
+  <button onclick="login()" id="loginBtn">Login</button>
+  <button onclick="register()" id="registerBtn">Registrieren</button>
+  <p id="loginMsg" style="color:red;text-align:center;"></p>
 </div>
 
 <!-- THEMEN -->
 <div class="container hidden" id="themeBox">
   <div class="top">
     <h2 id="themeTitle"></h2>
-    <div class="badge">💰 <span id="coins">0</span> | ⭐ <span id="level">1</span></div>
+    <div class="badge">💰 <span id="coinsSpan">0</span> | ⭐ <span id="levelSpan">1</span></div>
   </div>
 
   <div>
@@ -114,6 +118,7 @@ input{
   </div>
 
   <div id="themes"></div>
+  <button style="background:#f44336;margin-top:10px;" onclick="logout()">Logout</button>
 </div>
 
 <!-- QUIZ -->
@@ -145,40 +150,33 @@ const quizData={
       questions:[
         {
           q:{de:"Wann begann der 2. Weltkrieg?",en:"When did WWII start?",ar:"متى بدأت الحرب العالمية الثانية؟"},
-          options:{
-            de:["1939","1945","1914","1923"],
-            en:["1939","1945","1914","1923"],
-            ar:["1939","1945","1914","1923"]
-          },
+          options:{de:["1939","1945","1914","1923"],en:["1939","1945","1914","1923"],ar:["1939","1945","1914","1923"]},
           answer:{de:"1939",en:"1939",ar:"1939"}
         }
       ]
     }
   },
-  ThemaName: {
-    label: { de: "Thema Name", en: "Topic Name", ar: "اسم الموضوع" },
-
-    Unterthema1: {
-      label: { de: "Teil 1?", en: "?", ar: "الجزء1" }, 
-      questions: [
+  Allgemein:{
+    label:{de:"Allgemein",en:"General",ar:"عام"},
+    Geographie:{
+      label:{de:"Geographie",en:"Geography",ar:"الجغرافيا"},
+      questions:[
         {
-          q: { de: "Was ist die Währung Deutschlands?", en: "Subtopic1", ar: "ما هي عملت المانيا؟" },
-          options: { de:["Dollar","Euro","Lira","Mark"], en:["A","B"], ar:["الدولار","اليورو","الليرة","المارك"] }, // optional für Multiple Choice
-          answer: { de:"Euro", en:"A", ar:"اليورو" }
+          q:{de:"Was ist die Hauptstadt von Deutschland?",en:"What is the capital of Germany?",ar:"ما هي عاصمة ألمانيا؟"},
+          options:{de:["Berlin","München","Hamburg","Frankfurt"],en:["Berlin","Munich","Hamburg","Frankfurt"],ar:["برلين","ميونيخ","هامبورغ","فرانكفورت"]},
+          answer:{de:"Berlin",en:"Berlin",ar:"برلين"}
         }
       ]
     },
-
-    Unterthema2: {
-      label: { de: "Unterthema2", en: "Subtopic2", ar: "الموضوع الفرعي2" },
-      questions: [
+    Rätsel:{
+      label:{de:"Rätsel",en:"Riddle",ar:"لغز"},
+      questions:[
         {
-         q:{de:"Etwas umso mehr man davon nimmt umso größer wird es.",en:"?",ar:"شيء كلما اخذت منه اكثر اصبح اكبر."},
-          answer:{de:"grube",en:"?",ar:"الحفرة"}
+          q:{de:"Etwas, das umso größer wird, je mehr man davon nimmt",en:"Something that grows the more you take from it",ar:"شيء يكبر كلما أخذت منه أكثر"},
+          answer:{de:"Grube",en:"Hole",ar:"حفرة"}
         }
       ]
     }
-
   },
   TextQuiz:{
     label:{de:"Text Quiz",en:"Text Quiz",ar:"اختبار نصي"},
@@ -206,9 +204,21 @@ const shuffle=a=>[...a].sort(()=>Math.random()-0.5);
 
 /* ================= LOGIN ================= */
 function login(){
+  const u=document.getElementById("username").value.trim();
+  const p=document.getElementById("password").value;
+  if(!u || !p){document.getElementById("loginMsg").textContent=lang==="de"?"Bitte ausfüllen":"Please fill in"; return;}
+  localStorage.setItem("currentUser",u);
   loginBox.classList.add("hidden");
   themeBox.classList.remove("hidden");
   renderThemes();
+}
+
+function register(){
+  const u=document.getElementById("username").value.trim();
+  const p=document.getElementById("password").value;
+  if(!u || !p){document.getElementById("loginMsg").textContent=lang==="de"?"Bitte ausfüllen":"Please fill in"; return;}
+  localStorage.setItem("currentUser",u);
+  document.getElementById("loginMsg").textContent=lang==="de"?"Registriert!":"Registered!";
 }
 
 /* ================= LANGUAGE ================= */
@@ -220,32 +230,37 @@ function setLang(l){
 
 /* ================= THEMES ================= */
 function renderThemes(){
-  themes.innerHTML="";
-  themeTitle.textContent=
-    lang==="de"?"Themen auswählen":
-    lang==="en"?"Select topics":"اختر الموضوع";
+  document.getElementById("themes").innerHTML="";
+  document.getElementById("themeTitle").textContent=
+    lang==="de"?"Themen auswählen":lang==="en"?"Select topics":"اختر الموضوع";
 
-  Object.keys(quizData).forEach(t=>{
+  for(const t in quizData){
     const d=document.createElement("div");
     d.className="theme";
     d.textContent=quizData[t].label[lang];
     d.onclick=()=>renderSubs(t);
-    themes.appendChild(d);
-  });
+    document.getElementById("themes").appendChild(d);
+  }
   updateStats();
 }
 
 function renderSubs(t){
   topic=t;
-  themes.innerHTML="";
-  Object.keys(quizData[t]).forEach(s=>{
-    if(s==="label")return;
+  const container=document.getElementById("themes");
+  container.innerHTML="";
+  for(const s in quizData[t]){
+    if(s==="label") continue;
     const d=document.createElement("div");
     d.className="sub";
     d.textContent=quizData[t][s].label[lang];
     d.onclick=()=>startQuiz(s);
-    themes.appendChild(d);
-  });
+    container.appendChild(d);
+  }
+  const backBtn=document.createElement("button");
+  backBtn.textContent=lang==="de"?"⬅ Zurück":lang==="en"?"⬅ Back":"⬅ العودة";
+  backBtn.style.background="#f44336";
+  backBtn.onclick=renderThemes;
+  container.appendChild(backBtn);
 }
 
 /* ================= QUIZ ================= */
@@ -260,34 +275,35 @@ function showQuestion(){
   const q=quizData[topic][sub].questions[index];
   if(!q){ backToThemes(); return; }
 
-  quizTitle.textContent=quizData[topic][sub].label[lang];
-  question.textContent=q.q[lang];
-  answers.innerHTML="";
-  quizCoins.textContent=coins;
+  document.getElementById("quizTitle").textContent=quizData[topic][sub].label[lang];
+  document.getElementById("question").textContent=q.q[lang];
+  document.getElementById("answers").innerHTML="";
+  document.getElementById("quizCoins").textContent=coins;
 
   if(q.options){
-    (reduced||shuffle(q.options[lang])).forEach(o=>{
+    const opts=shuffle(reduced||q.options[lang]);
+    opts.forEach(o=>{
       const b=document.createElement("button");
       b.className="answer";
       b.textContent=o;
       b.onclick=()=>check(o);
-      answers.appendChild(b);
+      document.getElementById("answers").appendChild(b);
     });
   }else{
-    const i=document.createElement("input");
-    answers.appendChild(i);
+    const i=document.createElement("input"); i.id="textAnswer";
+    document.getElementById("answers").appendChild(i);
     const b=document.createElement("button");
-    b.textContent=lang==="de"?"Antworten":"Submit";
+    b.textContent=lang==="de"?"Antworten":lang==="en"?"Submit":"إرسال";
     b.onclick=()=>checkText(i.value);
-    answers.appendChild(b);
+    document.getElementById("answers").appendChild(b);
   }
 
-  fill.style.width=(index/quizData[topic][sub].questions.length*100)+"%";
+  document.getElementById("fill").style.width=(index/quizData[topic][sub].questions.length*100)+"%";
 }
 
 /* ================= HELP ================= */
 function useHelp(){
-  if(coins<100)return alert("Nicht genug Coins!");
+  if(coins<100){alert(lang==="de"?"Nicht genug Coins!":"Not enough coins!"); return;}
   coins-=100; updateStats();
 
   const q=quizData[topic][sub].questions[index];
@@ -295,6 +311,9 @@ function useHelp(){
     const wrong=q.options[lang].filter(o=>o!==q.answer[lang]);
     reduced=shuffle([q.answer[lang],wrong[0]]);
     showQuestion();
+  }else{
+    const input=document.getElementById("textAnswer");
+    if(input) input.value=q.answer[lang].substring(0,2);
   }
 }
 
@@ -309,21 +328,22 @@ function checkText(ans){
 }
 
 function showResult(correct){
+  const res=document.getElementById("result");
   if(correct){
     coins+=25;
-    if(coins>=level*100)level++;
-    result.textContent=lang==="de"?"Richtig!":"Correct!";
-    result.style.background="#4CAF50";
+    if(coins>=level*100) level++;
+    res.textContent=lang==="de"?"Richtig!":lang==="en"?"Correct!":"صحيح!";
+    res.style.background="#4CAF50";
   }else{
-    result.textContent=lang==="de"?"Falsch!":"Wrong!";
-    result.style.background="#f44336";
+    res.textContent=lang==="de"?"Falsch!":lang==="en"?"Wrong!":"خطأ!";
+    res.style.background="#f44336";
   }
   localStorage.setItem("coins",coins);
   localStorage.setItem("level",level);
-  result.style.display="block";
+  res.style.display="block";
   reduced=null;
   index++;
-  setTimeout(()=>{result.style.display="none";showQuestion();},1000);
+  setTimeout(()=>{res.style.display="none"; showQuestion();},1000);
 }
 
 /* ================= BACK ================= */
@@ -335,10 +355,16 @@ function backToThemes(){
 
 /* ================= STATS ================= */
 function updateStats(){
-  coinsSpan.textContent=coins;
-  levelSpan.textContent=level;
+  document.getElementById("coinsSpan").textContent=coins;
+  document.getElementById("levelSpan").textContent=level;
+}
+
+/* ================= LOGOUT ================= */
+function logout(){
+  localStorage.removeItem("currentUser");
+  loginBox.classList.remove("hidden");
+  themeBox.classList.add("hidden");
 }
 </script>
-
 </body>
 </html>
