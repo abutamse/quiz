@@ -148,33 +148,35 @@ const quizData={
     Deutschland:{
       label:{de:"Deutschland",en:"Germany",ar:"ألمانيا"},
       questions:[
-        {
-          q:{de:"Wann begann der 2. Weltkrieg?",en:"When did WWII start?",ar:"متى بدأت الحرب العالمية الثانية؟"},
-          options:{de:["1939","1945","1914","1923"],en:["1939","1945","1914","1923"],ar:["1939","1945","1914","1923"]},
-          answer:{de:"1939",en:"1939",ar:"1939"}
-        }
+        {q:{de:"Wann begann der 2. Weltkrieg?",en:"When did WWII start?",ar:"متى بدأ الحرب العالمية الثانية؟"},options:{de:["1939","1945","1914","1923"],en:["1939","1945","1914","1923"],ar:["1939","1945","1914","1923"]},answer:{de:"1939",en:"1939",ar:"1939"}},
+        {q:{de:"Wer war der erste Kaiser Deutschlands?",en:"Who was the first emperor of Germany?",ar:"من كان أول إمبراطور ألمانيا؟"},options:{de:["Wilhelm I","Friedrich II","Otto I","Karl der Große"],en:["Wilhelm I","Friedrich II","Otto I","Karl der Große"],ar:["فيلهلم الأول","فريدريك الثاني","أوتو الأول","كارل العظيم"]},answer:{de:"Wilhelm I",en:"Wilhelm I",ar:"فيلهلم الأول"}},
+        {q:{de:"Wann fiel die Berliner Mauer?",en:"When did the Berlin Wall fall?",ar:"متى سقطت جدار برلين؟"},options:{de:["1989","1990","1987","1991"],en:["1989","1990","1987","1991"],ar:["1989","1990","1987","1991"]},answer:{de:"1989",en:"1989",ar:"1989"}},
+        {q:{de:"Was war der Auslöser des 1. Weltkriegs?",en:"What triggered WWI?",ar:"ما الذي سبب الحرب العالمية الأولى؟"},options:{de:["Attentat von Sarajevo","Krieg in Afrika","Industrialisierung","Revolution"],en:["Sarajevo assassination","War in Africa","Industrialization","Revolution"],ar:["اغتيال سراييفو","الحرب في أفريقيا","التصنيع","الثورة"]},answer:{de:"Attentat von Sarajevo",en:"Sarajevo assassination",ar:"اغتيال سراييفو"}},
+        {q:{de:"Wer entdeckte Amerika?",en:"Who discovered America?",ar:"من اكتشف أمريكا؟"},options:{de:["Kolumbus","Vespucci","Magellan","Leif Erikson"],en:["Columbus","Vespucci","Magellan","Leif Erikson"],ar:["كولومبوس","فيسبوكي","ماجلان","ليف إريكسون"]},answer:{de:"Kolumbus",en:"Columbus",ar:"كولومبوس"}},
+        {q:{de:"Wann war der Fall von Konstantinopel?",en:"Fall of Constantinople?",ar:"متى سقط القسطنطينية؟"},options:{de:["1453","1492","1204","1521"],en:["1453","1492","1204","1521"],ar:["1453","1492","1204","1521"]},answer:{de:"1453",en:"1453",ar:"1453"}},
+        {q:{de:"Wer war Napoleon?",en:"Who was Napoleon?",ar:"من كان نابليون؟"},options:{de:["Französischer Kaiser","Russischer Zar","Deutscher König","Britischer König"],en:["French Emperor","Russian Tsar","German King","British King"],ar:["الإمبراطور الفرنسي","القيصر الروسي","ملك ألمانيا","الملك البريطاني"]},answer:{de:"Französischer Kaiser",en:"French Emperor",ar:"الإمبراطور الفرنسي"}},
+        {q:{de:"Wann begann die Französische Revolution?",en:"When did the French Revolution start?",ar:"متى بدأت الثورة الفرنسية؟"},options:{de:["1789","1776","1804","1799"],en:["1789","1776","1804","1799"],ar:["1789","1776","1804","1799"]},answer:{de:"1789",en:"1789",ar:"1789"}},
+        {q:{de:"Wer schrieb die 'Ilias'?",en:"Who wrote the 'Iliad'?",ar:"من كتب الإلياذة؟"},options:{de:["Homer","Virgil","Sophokles","Euripides"],en:["Homer","Virgil","Sophocles","Euripides"],ar:["هوميروس","فيرجيل","سوفوكليس","يوربيديس"]},answer:{de:"Homer",en:"Homer",ar:"هوميروس"}},
+        {q:{de:"Wann war die industrielle Revolution?",en:"When was the Industrial Revolution?",ar:"متى كانت الثورة الصناعية؟"},options:{de:["18. Jh","17. Jh","19. Jh","20. Jh"],en:["18th c.","17th c.","19th c.","20th c."],ar:["القرن 18","القرن 17","القرن 19","القرن 20"]},answer:{de:"18. Jh",en:"18th c.",ar:"القرن 18"}}
       ]
     }
+    // Weitere Themen wie Wissenschaft, TextQuiz, Geheim, ArabischeRätsel folgen gleich…
   },
-  Allgemein:{
-    label:{de:"Allgemein",en:"General",ar:"عام"},
-    Geographie:{
-      label:{de:"Geographie",en:"Geography",ar:"الجغرافيا"},
+  Wissenschaft:{
+    label:{de:"Wissenschaft",en:"Science",ar:"العلوم"},
+    Physik:{
+      label:{de:"Physik",en:"Physics",ar:"الفيزياء"},
       questions:[
-        {
-          q:{de:"Was ist die Hauptstadt von Deutschland?",en:"What is the capital of Germany?",ar:"ما هي عاصمة ألمانيا؟"},
-          options:{de:["Berlin","München","Hamburg","Frankfurt"],en:["Berlin","Munich","Hamburg","Frankfurt"],ar:["برلين","ميونيخ","هامبورغ","فرانكفورت"]},
-          answer:{de:"Berlin",en:"Berlin",ar:"برلين"}
-        }
-      ]
-    },
-    Rätsel:{
-      label:{de:"Rätsel",en:"Riddle",ar:"لغز"},
-      questions:[
-        {
-          q:{de:"Etwas, das umso größer wird, je mehr man davon nimmt",en:"Something that grows the more you take from it",ar:"شيء يكبر كلما أخذت منه أكثر"},
-          answer:{de:"Grube",en:"Hole",ar:"حفرة"}
-        }
+        {q:{de:"Wer entwickelte die Relativitätstheorie?",en:"Who developed relativity?",ar:"من طور النظرية النسبية؟"},options:{de:["Einstein","Newton","Tesla","Galileo"],en:["Einstein","Newton","Tesla","Galileo"],ar:["أينشتاين","نيوتن","تسلا","جاليليو"]},answer:{de:"Einstein",en:"Einstein",ar:"أينشتاين"}},
+        {q:{de:"Was ist die Einheit der Kraft?",en:"Unit of force?",ar:"ما هي وحدة القوة؟"},options:{de:["Newton","Joule","Pascal","Watt"],en:["Newton","Joule","Pascal","Watt"],ar:["نيوتن","جول","باسكال","وات"]},answer:{de:"Newton",en:"Newton",ar:"نيوتن"}},
+        {q:{de:"Wer entdeckte die Elektrizität?",en:"Who discovered electricity?",ar:"من اكتشف الكهرباء؟"},options:{de:["Franklin","Volta","Faraday","Tesla"],en:["Franklin","Volta","Faraday","Tesla"],ar:["فرانكلين","فولتا","فاراداي","تسلا"]},answer:{de:"Franklin",en:"Franklin",ar:"فرانكلين"}},
+        {q:{de:"Was ist Lichtgeschwindigkeit?",en:"Speed of light?",ar:"ما هي سرعة الضوء؟"},options:{de:["299792 km/s","300000 km/s","150000 km/s","100000 km/s"],en:["299792 km/s","300000 km/s","150000 km/s","100000 km/s"],ar:["299792 كم/ث","300000 كم/ث","150000 كم/ث","100000 كم/ث"]},answer:{de:"299792 km/s",en:"299792 km/s",ar:"299792 كم/ث"}},
+        {q:{de:"Wer entwickelte das Periodensystem?",en:"Who developed the periodic table?",ar:"من طور الجدول الدوري؟"},options:{de:["Mendelejew","Curie","Dalton","Lavoisier"],en:["Mendeleev","Curie","Dalton","Lavoisier"],ar:["مندلييف","كوري","دالتون","لافوازييه"]},answer:{de:"Mendelejew",en:"Mendeleev",ar:"مندلييف"}},
+        {q:{de:"Was ist die kleinste Einheit des Lebens?",en:"Smallest unit of life?",ar:"ما هي أصغر وحدة للحياة؟"},options:{de:["Zelle","Atom","Molekül","Gewebe"],en:["Cell","Atom","Molecule","Tissue"],ar:["خلية","ذرة","جزيء","نسيج"]},answer:{de:"Zelle",en:"Cell",ar:"خلية"}},
+        {q:{de:"Wer entdeckte Penicillin?",en:"Who discovered Penicillin?",ar:"من اكتشف البنسلين؟"},options:{de:["Fleming","Pasteur","Curie","Einstein"],en:["Fleming","Pasteur","Curie","Einstein"],ar:["فليمنج","باستور","كوري","أينشتاين"]},answer:{de:"Fleming",en:"Fleming",ar:"فليمنج"}},
+        {q:{de:"Was ist die Erde?",en:"What is Earth?",ar:"ما هي الأرض؟"},options:{de:["Planet","Stern","Mond","Komet"],en:["Planet","Star","Moon","Comet"],ar:["كوكب","نجم","قمر","مذنب"]},answer:{de:"Planet",en:"Planet",ar:"كوكب"}},
+        {q:{de:"Wer entwickelte die Evolutionstheorie?",en:"Who developed evolution theory?",ar:"من طور نظرية التطور؟"},options:{de:["Darwin","Lamarck","Einstein","Newton"],en:["Darwin","Lamarck","Einstein","Newton"],ar:["داروين","لامارك","أينشتاين","نيوتن"]},answer:{de:"Darwin",en:"Darwin",ar:"داروين"}},
+        {q:{de:"Was ist die chemische Formel von Wasser?",en:"Chemical formula of water?",ar:"ما هي الصيغة الكيميائية للماء؟"},options:{de:["H2O","CO2","O2","NaCl"],en:["H2O","CO2","O2","NaCl"],ar:["H2O","CO2","O2","NaCl"]},answer:{de:"H2O",en:"H2O",ar:"H2O"}}
       ]
     }
   },
@@ -183,10 +185,51 @@ const quizData={
     Rätsel:{
       label:{de:"Rätsel",en:"Riddle",ar:"لغز"},
       questions:[
-        {
-          q:{de:"Ein Tier, das miaut",en:"An animal that meows",ar:"حيوان يصدر مواء"},
-          answer:{de:"Katze",en:"Cat",ar:"قطة"}
-        }
+        {q:{de:"Ein Tier, das miaut",en:"An animal that meows",ar:"حيوان يصدر مواء"},answer:{de:"Katze",en:"Cat",ar:"قطة"}},
+        {q:{de:"Es ist gelb und man kann es essen",en:"It's yellow and edible",ar:"إنه أصفر ويمكن أكله"},answer:{de:"Banane",en:"Banana",ar:"موز"}},
+        {q:{de:"Es fliegt in der Nacht und schläft tagsüber",en:"It flies at night and sleeps during the day",ar:"يطير في الليل وينام نهاراً"},answer:{de:"Fledermaus",en:"Bat",ar:"خفاش"}},
+        {q:{de:"Es ist rund und wird geworfen",en:"It is round and thrown",ar:"إنه دائري ويتم رميه"},answer:{de:"Ball",en:"Ball",ar:"كرة"}},
+        {q:{de:"Ein Gerät zum Schreiben",en:"A device for writing",ar:"جهاز للكتابة"},answer:{de:"Stift",en:"Pen",ar:"قلم"}},
+        {q:{de:"Es ist heiß und kommt aus dem Ofen",en:"It's hot and comes from the oven",ar:"إنه ساخن ويخرج من الفرن"},answer:{de:"Brot",en:"Bread",ar:"خبز"}},
+        {q:{de:"Es lebt im Wasser",en:"Lives in water",ar:"يعيش في الماء"},answer:{de:"Fisch",en:"Fish",ar:"سمك"}},
+        {q:{de:"Man benutzt es zum Schneiden",en:"Used to cut",ar:"يستخدم للقطع"},answer:{de:"Messer",en:"Knife",ar:"سكين"}},
+        {q:{de:"Es ist weich und kuschelig",en:"Soft and cuddly",ar:"إنه ناعم ويحتوي على الفراء",ar:"دب"},answer:{de:"Teddy",en:"Teddy",ar:"دب"}},
+        {q:{de:"Es hat vier Beine",en:"It has four legs",ar:"له أربعة أرجل"},answer:{de:"Hund",en:"Dog",ar:"كلب"}}
+      ]
+    }
+  },
+  ArabischeRätsel:{
+    label:{de:"Arabische Rätsel",en:"Arabic Riddles",ar:"ألغاز عربية"},
+    Klassische:{
+      label:{de:"Klassische Rätsel",en:"Classic Riddles",ar:"ألغاز كلاسيكية"},
+      questions:[
+        {q:{de:"ما الشيء الذي إذا شاركته نقص؟",en:"What decreases if you share it?",ar:"ما الشيء الذي إذا شاركته نقص؟"},answer:{de:"Das Geheimnis",en:"The Secret",ar:"السر"}},
+        {q:{de:"ما الشيء الذي لا يمشي إلا بالضرب؟",en:"What doesn’t move unless you hit it?",ar:"ما الشيء الذي لا يمشي إلا بالضرب؟"},answer:{de:"Der Nagel",en:"The Nail",ar:"المسمار"}},
+        {q:{de:"ما الشيء الذي يكون أخضر في الأرض، أسود في السوق، أحمر في البيت؟",en:"What is green in the ground, black in the market, red at home?",ar:"ما الشيء الذي يكون أخضر في الأرض، أسود في السوق، أحمر في البيت؟"},answer:{de:"Tee",en:"Tea",ar:"الشاي"}},
+        {q:{de:"ما الذي يزداد كلما نقص؟",en:"What increases as it decreases?",ar:"ما الذي يزداد كلما نقص؟"},answer:{de:"Alter",en:"Age",ar:"العمر"}},
+        {q:{de:"ما الشيء الذي يتكلم كل لغات العالم؟",en:"What speaks all languages?",ar:"ما الشيء الذي يتكلم كل لغات العالم؟"},answer:{de:"Echo",en:"Echo",ar:"الصدى"}},
+        {q:{de:"شيء إذا قلبته كبر؟",en:"Something that grows when flipped?",ar:"شيء إذا قلبته كبر؟"},answer:{de:"Die 6 wird 9",en:"6 becomes 9",ar:"الرقم 6 (يصبح 9)"}},
+        {q:{de:"ما الشيء الذي له رأس ولا عين له؟",en:"What has a head but no eyes?",ar:"ما الشيء الذي له رأس ولا عين له؟"},answer:{de:"Stecknadel",en:"Pin",ar:"الدبوس"}},
+        {q:{de:"ما الذي لا يدخل إلا إذا ضُرب؟",en:"What only enters when hit?",ar:"ما الذي لا يدخل إلا إذا ضُرب؟"},answer:{de:"Nagel",en:"Nail",ar:"المسمار"}},
+        {q:{de:"ما الشيء الذي لا يمكنك الاحتفاظ به بعد أن تعطيه؟",en:"What you cannot keep after giving?",ar:"ما الذي لا يمكنك الاحتفاظ به بعد أن تعطيه؟"},answer:{de:"Das Wort",en:"The Word",ar:"الكلمة"}},
+        {q:{de:"ما الشيء الموجود في كل بيت ولا يُستعمل؟",en:"What exists in every house but is unused?",ar:"ما الشيء الموجود في كل بيت ولا يُستعمل؟"},answer:{de:"Friedhof",en:"Cemetery",ar:"المقبرة"}},
+        {q:{de:"ما الذي يراك دائمًا ولا تستطيع رؤيته؟",en:"What always sees you but you can't see?",ar:"ما الذي يراك دائمًا ولا تستطيع رؤيته؟"},answer:{de:"Hinter deinem Kopf",en:"Behind your head",ar:"خلف رأسك"}},
+        {q:{de:"ما الشيء الذي إذا ذكرته اختفى؟",en:"What disappears when mentioned?",ar:"ما الشيء الذي إذا ذكرته اختفى؟"},answer:{de:"Stille",en:"Silence",ar:"الصمت"}}
+      ]
+    },
+    Religiöse:{
+      label:{de:"Religiöse Rätsel",en:"Religious Riddles",ar:"ألغاز دينية"},
+      questions:[
+        {q:{de:"ما أول شيء خلقه الله؟",en:"What was the first thing God created?",ar:"ما أول شيء خلقه الله؟"},answer:{de:"Der Stift",en:"The Pen",ar:"القلم"}},
+        {q:{de:"ما الصلاة التي ليس فيها ركوع ولا سجود؟",en:"Which prayer has no bowing or prostration?",ar:"ما الصلاة التي ليس فيها ركوع ولا سجود؟"},answer:{de:"Leichengebet",en:"Funeral prayer",ar:"صلاة الجنازة"}},
+        {q:{de:"ما الشيء الذي حرّم استعماله وأحلّ أكله؟",en:"What is forbidden to use but allowed to eat?",ar:"ما الشيء الذي حرّم استعماله وأحلّ أكله؟"},answer:{de:"Gold",en:"Gold",ar:"الذهب"}},
+        {q:{de:"ما الشيء الذي إذا زاد نقص الأجر؟",en:"What reduces reward if increased?",ar:"ما الشيء الذي إذا زاد نقص الأجر؟"},answer:{de:"Heuchelei",en:"Hypocrisy",ar:"الرياء"}},
+        {q:{de:"ما العمل الذي لا أجر فيه مع الشرك؟",en:"Which act has no reward with shirk?",ar:"ما العمل الذي لا أجر فيه مع الشرك؟"},answer:{de:"Anbetung",en:"Worship",ar:"العبادة"}},
+        {q:{de:"Wer ist der Prophet, der das Wasser teilte?",en:"Which prophet parted the water?",ar:"من هو النبي الذي شق الماء؟"},answer:{de:"Moses",en:"Moses",ar:"موسى"}},
+        {q:{de:"Welches Buch wurde zuerst offenbart?",en:"Which book was revealed first?",ar:"أي كتاب نزل أولاً؟"},answer:{de:"Tawrat",en:"Torah",ar:"التوراة"}},
+        {q:{de:"Wie viele Gebete täglich?",en:"How many prayers daily?",ar:"كم عدد الصلوات اليومية؟"},answer:{de:"5",en:"5",ar:"5"}},
+        {q:{de:"Was ist die Kaaba?",en:"What is the Kaaba?",ar:"ما هي الكعبة؟"},answer:{de:"Gebäude in Mekka",en:"Building in Mecca",ar:"مبنى في مكة"}},
+        {q:{de:"Wer ist der Engel, der die Offenbarungen brachte?",en:"Which angel delivered revelations?",ar:"من هو الملاك الذي جاء بالوحي؟"},answer:{de:"Gabriel",en:"Gabriel",ar:"جبريل"}}
       ]
     }
   }
@@ -198,69 +241,70 @@ let topic=null, sub=null, index=0;
 let coins=Number(localStorage.getItem("coins"))||0;
 let level=Number(localStorage.getItem("level"))||1;
 let reduced=null;
+let currentUser=null;
 
 /* ================= UTIL ================= */
 const shuffle=a=>[...a].sort(()=>Math.random()-0.5);
 
-/* ================= LOGIN ================= */
+/* ================= LOGIN/REGISTER ================= */
 function login(){
   const u=document.getElementById("username").value.trim();
   const p=document.getElementById("password").value;
-  if(!u || !p){document.getElementById("loginMsg").textContent=lang==="de"?"Bitte ausfüllen":"Please fill in"; return;}
-  localStorage.setItem("currentUser",u);
-  loginBox.classList.add("hidden");
-  themeBox.classList.remove("hidden");
-  renderThemes();
+  if(!u||!p){loginMsg.textContent=lang==="de"?"Bitte ausfüllen":lang==="en"?"Please fill in":"الرجاء الإدخال"; return;}
+  const user=JSON.parse(localStorage.getItem("user_"+u));
+  if(user && user.password===p){currentUser=u; localStorage.setItem("currentUser",u); loginBox.classList.add("hidden"); themeBox.classList.remove("hidden"); renderThemes();}
+  else loginMsg.textContent=lang==="de"?"Falscher Login":lang==="en"?"Wrong login":"تسجيل الدخول خاطئ";
 }
-
 function register(){
   const u=document.getElementById("username").value.trim();
   const p=document.getElementById("password").value;
-  if(!u || !p){document.getElementById("loginMsg").textContent=lang==="de"?"Bitte ausfüllen":"Please fill in"; return;}
-  localStorage.setItem("currentUser",u);
-  document.getElementById("loginMsg").textContent=lang==="de"?"Registriert!":"Registered!";
+  if(!u||!p){loginMsg.textContent=lang==="de"?"Bitte ausfüllen":lang==="en"?"Please fill in":"الرجاء الإدخال"; return;}
+  if(localStorage.getItem("user_"+u)){loginMsg.textContent=lang==="de"?"Benutzer existiert":lang==="en"?"User exists":"المستخدم موجود"; return;}
+  localStorage.setItem("user_"+u,JSON.stringify({password:p,coins:0}));
+  loginMsg.textContent=lang==="de"?"Registriert!":lang==="en"?"Registered!":"تم التسجيل!";
 }
+function logout(){localStorage.removeItem("currentUser"); currentUser=null; loginBox.classList.remove("hidden"); themeBox.classList.add("hidden");}
 
 /* ================= LANGUAGE ================= */
 function setLang(l){
   lang=l;
   document.documentElement.dir=l==="ar"?"rtl":"ltr";
+  loginTitle.textContent=lang==="de"?"Login / Registrierung":lang==="en"?"Login / Register":"تسجيل الدخول / التسجيل";
+  loginBtn.textContent=lang==="de"?"Login":lang==="en"?"Login":"تسجيل الدخول";
+  registerBtn.textContent=lang==="de"?"Registrieren":lang==="en"?"Register":"تسجيل";
   renderThemes();
 }
 
 /* ================= THEMES ================= */
 function renderThemes(){
-  document.getElementById("themes").innerHTML="";
-  document.getElementById("themeTitle").textContent=
-    lang==="de"?"Themen auswählen":lang==="en"?"Select topics":"اختر الموضوع";
-
-  for(const t in quizData){
+  themes.innerHTML="";
+  themeTitle.textContent=lang==="de"?"Themen auswählen":lang==="en"?"Select Topics":"اختر الموضوع";
+  Object.keys(quizData).forEach(t=>{
     const d=document.createElement("div");
     d.className="theme";
     d.textContent=quizData[t].label[lang];
     d.onclick=()=>renderSubs(t);
-    document.getElementById("themes").appendChild(d);
-  }
+    themes.appendChild(d);
+  });
   updateStats();
 }
 
 function renderSubs(t){
   topic=t;
-  const container=document.getElementById("themes");
-  container.innerHTML="";
-  for(const s in quizData[t]){
-    if(s==="label") continue;
+  themes.innerHTML="";
+  Object.keys(quizData[t]).forEach(s=>{
+    if(s==="label")return;
     const d=document.createElement("div");
     d.className="sub";
     d.textContent=quizData[t][s].label[lang];
     d.onclick=()=>startQuiz(s);
-    container.appendChild(d);
-  }
+    themes.appendChild(d);
+  });
   const backBtn=document.createElement("button");
-  backBtn.textContent=lang==="de"?"⬅ Zurück":lang==="en"?"⬅ Back":"⬅ العودة";
+  backBtn.textContent=lang==="de"?"Zurück":lang==="en"?"Back":"عودة";
   backBtn.style.background="#f44336";
-  backBtn.onclick=renderThemes;
-  container.appendChild(backBtn);
+  backBtn.onclick=()=>renderThemes();
+  themes.appendChild(backBtn);
 }
 
 /* ================= QUIZ ================= */
@@ -268,51 +312,48 @@ function startQuiz(s){
   sub=s; index=0; reduced=null;
   themeBox.classList.add("hidden");
   quizBox.classList.remove("hidden");
+  quizCoins.textContent=coins;
   showQuestion();
 }
 
 function showQuestion(){
   const q=quizData[topic][sub].questions[index];
-  if(!q){ backToThemes(); return; }
-
-  document.getElementById("quizTitle").textContent=quizData[topic][sub].label[lang];
-  document.getElementById("question").textContent=q.q[lang];
-  document.getElementById("answers").innerHTML="";
-  document.getElementById("quizCoins").textContent=coins;
+  if(!q){backToThemes(); return;}
+  quizTitle.textContent=quizData[topic][sub].label[lang];
+  question.textContent=q.q[lang];
+  answers.innerHTML="";
+  quizCoins.textContent=coins;
 
   if(q.options){
-    const opts=shuffle(reduced||q.options[lang]);
-    opts.forEach(o=>{
+    (reduced||shuffle(q.options[lang])).forEach(o=>{
       const b=document.createElement("button");
       b.className="answer";
       b.textContent=o;
       b.onclick=()=>check(o);
-      document.getElementById("answers").appendChild(b);
+      answers.appendChild(b);
     });
   }else{
-    const i=document.createElement("input"); i.id="textAnswer";
-    document.getElementById("answers").appendChild(i);
+    const i=document.createElement("input");
+    answers.appendChild(i);
     const b=document.createElement("button");
     b.textContent=lang==="de"?"Antworten":lang==="en"?"Submit":"إرسال";
     b.onclick=()=>checkText(i.value);
-    document.getElementById("answers").appendChild(b);
+    answers.appendChild(b);
   }
-
-  document.getElementById("fill").style.width=(index/quizData[topic][sub].questions.length*100)+"%";
+  fill.style.width=(index/quizData[topic][sub].questions.length*100)+"%";
 }
 
 /* ================= HELP ================= */
 function useHelp(){
   if(coins<100){alert(lang==="de"?"Nicht genug Coins!":"Not enough coins!"); return;}
   coins-=100; updateStats();
-
   const q=quizData[topic][sub].questions[index];
   if(q.options){
     const wrong=q.options[lang].filter(o=>o!==q.answer[lang]);
     reduced=shuffle([q.answer[lang],wrong[0]]);
     showQuestion();
   }else{
-    const input=document.getElementById("textAnswer");
+    const input=document.querySelector("#answers input");
     if(input) input.value=q.answer[lang].substring(0,2);
   }
 }
@@ -326,45 +367,23 @@ function checkText(ans){
   const q=quizData[topic][sub].questions[index];
   showResult(ans.trim().toLowerCase()===q.answer[lang].toLowerCase());
 }
-
 function showResult(correct){
-  const res=document.getElementById("result");
-  if(correct){
-    coins+=25;
-    if(coins>=level*100) level++;
-    res.textContent=lang==="de"?"Richtig!":lang==="en"?"Correct!":"صحيح!";
-    res.style.background="#4CAF50";
-  }else{
-    res.textContent=lang==="de"?"Falsch!":lang==="en"?"Wrong!":"خطأ!";
-    res.style.background="#f44336";
-  }
-  localStorage.setItem("coins",coins);
-  localStorage.setItem("level",level);
-  res.style.display="block";
-  reduced=null;
-  index++;
-  setTimeout(()=>{res.style.display="none"; showQuestion();},1000);
+  if(correct){coins+=25; if(coins>=level*100)level++; result.textContent=lang==="de"?"Richtig!":"Correct!"; result.style.background="#4CAF50";}
+  else{result.textContent=lang==="de"?"Falsch!":"Wrong!"; result.style.background="#f44336";}
+  localStorage.setItem("coins",coins); localStorage.setItem("level",level);
+  result.style.display="block"; reduced=null; index++;
+  setTimeout(()=>{result.style.display="none";showQuestion();},1000);
 }
 
 /* ================= BACK ================= */
-function backToThemes(){
-  quizBox.classList.add("hidden");
-  themeBox.classList.remove("hidden");
-  renderThemes();
-}
+function backToThemes(){quizBox.classList.add("hidden"); themeBox.classList.remove("hidden"); renderThemes();}
 
 /* ================= STATS ================= */
-function updateStats(){
-  document.getElementById("coinsSpan").textContent=coins;
-  document.getElementById("levelSpan").textContent=level;
-}
+function updateStats(){coinsSpan.textContent=coins; levelSpan.textContent=level;}
 
-/* ================= LOGOUT ================= */
-function logout(){
-  localStorage.removeItem("currentUser");
-  loginBox.classList.remove("hidden");
-  themeBox.classList.add("hidden");
-}
+/* ================= INIT ================= */
+if(localStorage.getItem("currentUser")){currentUser=localStorage.getItem("currentUser"); loginBox.classList.add("hidden"); themeBox.classList.remove("hidden"); renderThemes();}
 </script>
+
 </body>
 </html>
