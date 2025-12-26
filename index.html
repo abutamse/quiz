@@ -155,22 +155,32 @@ const quizData={
       ]
     }
   },
-   Allgemein:{
-    label:{de:"Allgemein",en:"?",ar:"عام"},
-    Teil 1:{
-      label:{de:"Teil 1",en:"1",ar:"جزء 1"},
-      questions:[
-        {
-          q:{de:"Etwas umso mehr man davon nimmt umso größer wird es.",en:"?",ar:"شيء كلما اخذت منه اكثر اصبح اكبر."},
-          options:{
-            de:["1939","1945","1914","1923"],
-            en:["1939","1945","1914","1923"],
-            ar:["1939","1945","1914","1923"]
-          },
-          answer:{de:"1939",en:"1939",ar:"1939"}
-        }
-      ]
-    }
+ThemaName: {
+  label: { de: "Thema Name", en: "Topic Name", ar: "اسم الموضوع" },
+
+  Unterthema1: {
+    label: { de: "Teil 1?", en: "?", ar: "الجزء1" }, 
+    questions: [
+      {
+        q: { de: "Was ist die Währung Deutschlands?", en: "Subtopic1", ar: "ما هي عملت المانيا؟" },
+        options: { de:["Dollar","Euro","Lira,"Mark"], en:["A","B"], ar:["الدولار",اليورو","الليرة","المارك"] }, // optional für Multiple Choice
+        answer: { de:"Euro", en:"A", ar:"اليورو" }
+      }
+    ]
+  },
+
+  Unterthema2: {
+    label: { de: "Unterthema2", en: "Subtopic2", ar: "الموضوع الفرعي2" },
+    questions: [
+      {
+        q: { de: "Frage 2?", en: "Question 2?", ar: "السؤال 2؟" },
+        answer: { de:"Antwort", en:"Answer", ar:"الجواب" } // Textquiz
+      }
+    ]
+  }
+
+}
+
      Rätsel:{
       label:{de:"Rätsel",en:"Riddle",ar:"لغز"},
       questions:[
