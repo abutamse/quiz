@@ -6,8 +6,8 @@
 <title>The Big Quiz</title>
 
 <style>
-body {
-  font-family:Segoe UI, sans-serif;
+body{
+  font-family:'Segoe UI',Tahoma,sans-serif;
   margin:0;
   background:linear-gradient(to bottom,#6a11cb,#2575fc);
   display:flex;
@@ -15,9 +15,9 @@ body {
   align-items:center;
   min-height:100vh;
 }
-[dir="rtl"] { direction: rtl; text-align: right; }
+[dir="rtl"]{direction:rtl;text-align:right;}
 
-.container {
+.container{
   background:#fff;
   padding:20px;
   border-radius:20px;
@@ -25,22 +25,22 @@ body {
   max-width:600px;
   box-shadow:0 10px 25px rgba(0,0,0,0.3);
 }
-.hidden { display:none; }
+.hidden{display:none;}
+h2,h3{text-align:center;}
 
-h2,h3 { text-align:center; }
-button {
+button{
   width:100%;
   padding:12px;
   margin-top:10px;
   border:none;
   border-radius:10px;
   background:#4CAF50;
-  color:#fff;
-  font-size:16px;
+  color:white;
   font-weight:bold;
   cursor:pointer;
 }
-.theme,.sub,.answer {
+
+.theme,.sub,.answer{
   background:#4CAF50;
   color:white;
   padding:16px;
@@ -49,30 +49,51 @@ button {
   text-align:center;
   cursor:pointer;
 }
-.top {
+
+.top{
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
-.badge {
+
+.badge{
   background:#ffecb3;
   padding:5px 10px;
   border-radius:10px;
   font-weight:bold;
 }
-.progress {
+
+.lang-btn{
+  width:auto;
+  padding:5px 10px;
+  font-size:14px;
+  background:#007BFF;
+  margin:0 3px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  text-align:center;
+}
+
+.progress{
   width:100%;
   height:20px;
   background:#ddd;
   border-radius:10px;
   overflow:hidden;
 }
-.fill {
+.fill{
   height:100%;
   background:#4CAF50;
   width:0%;
 }
-#result {
+
+#result{
   margin-top:10px;
   padding:10px;
   text-align:center;
@@ -85,36 +106,56 @@ button {
 
 <body>
 
-<div class="container" id="app">
-
-<div id="lang">
-  <button onclick="setLang('de')">DE</button>
-  <button onclick="setLang('en')">EN</button>
-  <button onclick="setLang('ar')">AR</button>
+<!-- LOGIN -->
+<div class="container" id="loginBox">
+  <h2 id="loginTitle">Login / Registrierung</h2>
+  <input id="username" placeholder="Benutzername">
+  <input id="password" type="password" placeholder="Passwort">
+  <button onclick="login()">Login</button>
+  <button onclick="register()">Registrieren</button>
+  <p id="loginMsg" style="color:red;text-align:center;"></p>
 </div>
 
-<div id="themes"></div>
-
-<div id="quiz" class="hidden">
+<!-- THEMEN -->
+<div class="container hidden" id="themeBox">
   <div class="top">
-    <h3 id="quizTitle"></h3>
+    <h2 id="themeTitle"></h2>
     <div class="badge">💰 <span id="coins">0</span> | ⭐ <span id="level">1</span></div>
   </div>
+
+  <div>
+    <button class="lang-btn" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ar')">AR</button>
+  </div>
+
+  <div id="themes"></div>
+  <button style="background:#f44336" onclick="logout()">Logout</button>
+</div>
+
+<!-- QUIZ -->
+<div class="container hidden" id="quizBox">
+  <div class="top">
+    <h3 id="quizTitle"></h3>
+    <div class="badge">💰 <span id="quizCoins">0</span></div>
+  </div>
+
   <div class="progress"><div class="fill" id="fill"></div></div>
   <div id="question"></div>
   <div id="answers"></div>
   <div id="result"></div>
-  <button onclick="back()">⬅ Back</button>
-</div>
 
+  <button style="background:#f44336" onclick="backToSub()">
+    ⬅ Zurück
+  </button>
 </div>
 
 <script>
-// =================== JSON QUIZDATEN ===================
-const quizJSON = {
-  history: {
+// ================== QUIZDATEN ==================
+const quizData={
+  Geschichte:{
     label:{de:"Geschichte",en:"History",ar:"التاريخ"},
-    germany:{
+    Deutschland:{
       label:{de:"Deutschland",en:"Germany",ar:"ألمانيا"},
       questions:[
         {
@@ -129,9 +170,9 @@ const quizJSON = {
       ]
     }
   },
-  science:{
+  Wissenschaft:{
     label:{de:"Wissenschaft",en:"Science",ar:"العلوم"},
-    physics:{
+    Physik:{
       label:{de:"Physik",en:"Physics",ar:"الفيزياء"},
       questions:[
         {
@@ -145,123 +186,172 @@ const quizJSON = {
         }
       ]
     }
+  },
+  TextQuiz:{
+    label:{de:"Text Quiz",en:"Text Quiz",ar:"اختبار نصي"},
+    Rätsel:{
+      label:{de:"Rätsel",en:"Riddle",ar:"لغز"},
+      questions:[
+        {
+          q:{de:"Ein Tier, das miaut",en:"An animal that meows",ar:"حيوان يصدر مواء"},
+          answer:{de:"Katze",en:"Cat",ar:"قطة"}
+        }
+      ]
+    }
   }
 };
 
-// =================== STATE ===================
+// ================== STATE ==================
 let lang="de";
-let topic,sub,qIndex=0;
+let topic=null,sub=null,index=0;
 let coins=Number(localStorage.getItem("coins"))||0;
 let level=Number(localStorage.getItem("level"))||1;
 
-// =================== UTIL ===================
+// ================== UTIL ==================
 const shuffle=a=>[...a].sort(()=>Math.random()-0.5);
 
-// =================== SPRACHE ===================
+// ================== SPRACHE ==================
 function setLang(l){
   lang=l;
-  document.documentElement.dir = l==="ar"?"rtl":"ltr";
+  document.documentElement.dir=l==="ar"?"rtl":"ltr";
   renderThemes();
 }
 
-// =================== THEMEN ===================
-function renderThemes(){
-  document.getElementById("quiz").classList.add("hidden");
-  const t=document.getElementById("themes");
-  t.innerHTML="";
-  Object.keys(quizJSON).forEach(k=>{
-    const d=document.createElement("div");
-    d.className="theme";
-    d.textContent=quizJSON[k].label[lang];
-    d.onclick=()=>renderSubs(k);
-    t.appendChild(d);
-  });
+// ================== LOGIN ==================
+function login(){
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("themeBox").classList.remove("hidden");
+  renderThemes();
+}
+function register(){ login(); }
+function logout(){
+  document.getElementById("themeBox").classList.add("hidden");
+  document.getElementById("loginBox").classList.remove("hidden");
 }
 
-// =================== SUB ===================
-function renderSubs(k){
-  topic=k;
-  const t=document.getElementById("themes");
-  t.innerHTML="";
-  Object.keys(quizJSON[k]).forEach(s=>{
+// ================== THEMEN ==================
+function renderThemes(){
+  document.getElementById("themes").innerHTML="";
+  document.getElementById("themeTitle").textContent=
+    lang==="de"?"Themen auswählen":
+    lang==="en"?"Select topics":"اختر الموضوع";
+
+  Object.keys(quizData).forEach(t=>{
+    const d=document.createElement("div");
+    d.className="theme";
+    d.textContent=quizData[t].label[lang];
+    d.onclick=()=>renderSubs(t);
+    document.getElementById("themes").appendChild(d);
+  });
+
+  updateStats();
+}
+
+// ================== SUBTHEMEN ==================
+function renderSubs(t){
+  topic=t;
+  const box=document.getElementById("themes");
+  box.innerHTML="";
+
+  Object.keys(quizData[t]).forEach(s=>{
     if(s==="label")return;
     const d=document.createElement("div");
     d.className="sub";
-    d.textContent=quizJSON[k][s].label[lang];
+    d.textContent=quizData[t][s].label[lang];
     d.onclick=()=>startQuiz(s);
-    t.appendChild(d);
+    box.appendChild(d);
   });
+
+  const back=document.createElement("button");
+  back.textContent=lang==="de"?"⬅ Zurück":"⬅ Back";
+  back.style.background="#f44336";
+  back.onclick=renderThemes;
+  box.appendChild(back);
 }
 
-// =================== QUIZ ===================
+// ================== QUIZ ==================
 function startQuiz(s){
-  sub=s; qIndex=0;
-  document.getElementById("themes").innerHTML="";
-  document.getElementById("quiz").classList.remove("hidden");
-  updateStats();
+  sub=s; index=0;
+  document.getElementById("themeBox").classList.add("hidden");
+  document.getElementById("quizBox").classList.remove("hidden");
   showQuestion();
 }
 
 function showQuestion(){
-  const q=quizJSON[topic][sub].questions[qIndex];
-  if(!q){ back(); return; }
+  const q=quizData[topic][sub].questions[index];
+  if(!q){ backToSub(); return; }
 
   document.getElementById("quizTitle").textContent=
-    quizJSON[topic][sub].label[lang];
+    quizData[topic][sub].label[lang];
 
   document.getElementById("question").textContent=q.q[lang];
   const a=document.getElementById("answers");
   a.innerHTML="";
-  shuffle(q.options[lang]).forEach(o=>{
-    const b=document.createElement("button");
-    b.className="answer";
-    b.textContent=o;
-    b.onclick=()=>check(o);
-    a.appendChild(b);
-  });
 
+  if(q.options){
+    shuffle(q.options[lang]).forEach(o=>{
+      const b=document.createElement("button");
+      b.className="answer";
+      b.textContent=o;
+      b.onclick=()=>check(o);
+      a.appendChild(b);
+    });
+  }else{
+    const input=document.createElement("input");
+    input.id="textAnswer";
+    a.appendChild(input);
+    const btn=document.createElement("button");
+    btn.textContent=lang==="de"?"Antworten":"Submit";
+    btn.onclick=()=>checkText(input.value);
+    a.appendChild(btn);
+  }
+
+  document.getElementById("quizCoins").textContent=coins;
   document.getElementById("fill").style.width=
-    (qIndex/quizJSON[topic][sub].questions.length*100)+"%";
+    (index/quizData[topic][sub].questions.length*100)+"%";
 }
 
+// ================== CHECK ==================
 function check(ans){
-  const q=quizJSON[topic][sub].questions[qIndex];
+  const q=quizData[topic][sub].questions[index];
+  showResult(ans===q.answer[lang]);
+}
+function checkText(ans){
+  const q=quizData[topic][sub].questions[index];
+  showResult(ans.trim().toLowerCase()===q.answer[lang].toLowerCase());
+}
+
+function showResult(correct){
   const r=document.getElementById("result");
-  if(ans===q.answer[lang]){
+  if(correct){
     coins+=25;
-    if(coins>=level*100){ level++; }
-    r.textContent=lang==="de"?"Richtig!":lang==="en"?"Correct!":"صحيح!";
+    if(coins>=level*100)level++;
+    r.textContent=lang==="de"?"Richtig!":"Correct!";
     r.style.background="#4CAF50";
   }else{
-    r.textContent=lang==="de"?"Falsch!":lang==="en"?"Wrong!":"خطأ!";
+    r.textContent=lang==="de"?"Falsch!":"Wrong!";
     r.style.background="#f44336";
   }
-  save();
+  localStorage.setItem("coins",coins);
+  localStorage.setItem("level",level);
   updateStats();
   r.style.display="block";
-  qIndex++;
+  index++;
   setTimeout(()=>{r.style.display="none";showQuestion();},1000);
 }
 
-// =================== STATS ===================
+// ================== BACK ==================
+function backToSub(){
+  document.getElementById("quizBox").classList.add("hidden");
+  document.getElementById("themeBox").classList.remove("hidden");
+  renderSubs(topic);
+}
+
+// ================== STATS ==================
 function updateStats(){
   document.getElementById("coins").textContent=coins;
   document.getElementById("level").textContent=level;
 }
-function save(){
-  localStorage.setItem("coins",coins);
-  localStorage.setItem("level",level);
-}
-
-// =================== BACK ===================
-function back(){
-  document.getElementById("quiz").classList.add("hidden");
-  renderThemes();
-}
-
-// =================== INIT ===================
-renderThemes();
-updateStats();
 </script>
 
 </body>
