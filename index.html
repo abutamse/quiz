@@ -112,8 +112,7 @@ input{
   <input id="username" placeholder="Benutzername">
   <input id="password" type="password" placeholder="Passwort">
   <button onclick="login()">Login</button>
-  <button onclick="register()">Registrieren</button>
-  <p id="loginMsg" style="color:red;text-align:center;"></p>
+  <button onclick="login()">Registrieren</button>
 </div>
 
 <!-- THEMEN -->
@@ -141,17 +140,21 @@ input{
   </div>
 
   <div class="progress"><div class="fill" id="fill"></div></div>
+
   <div id="question"></div>
   <div id="answers"></div>
+
+  <button id="helpBtn" style="background:#ff9800" onclick="useHelp()">
+    Hilfe (100 💰)
+  </button>
+
   <div id="result"></div>
 
-  <button style="background:#f44336" onclick="backToSub()">
-    ⬅ Zurück
-  </button>
+  <button style="background:#f44336" onclick="backToSub()">⬅ Zurück</button>
 </div>
 
 <script>
-// ================== QUIZDATEN ==================
+// ================= QUIZDATEN =================
 const quizData={
   Geschichte:{
     label:{de:"Geschichte",en:"History",ar:"التاريخ"},
@@ -170,23 +173,6 @@ const quizData={
       ]
     }
   },
-  Wissenschaft:{
-    label:{de:"Wissenschaft",en:"Science",ar:"العلوم"},
-    Physik:{
-      label:{de:"Physik",en:"Physics",ar:"الفيزياء"},
-      questions:[
-        {
-          q:{de:"Wer entwickelte die Relativitätstheorie?",en:"Who developed relativity?",ar:"من طور نظرية النسبية؟"},
-          options:{
-            de:["Einstein","Newton","Tesla","Galileo"],
-            en:["Einstein","Newton","Tesla","Galileo"],
-            ar:["آينشتاين","نيوتن","تسلا","غاليليو"]
-          },
-          answer:{de:"Einstein",en:"Einstein",ar:"آينشتاين"}
-        }
-      ]
-    }
-  },
   TextQuiz:{
     label:{de:"Text Quiz",en:"Text Quiz",ar:"اختبار نصي"},
     Rätsel:{
@@ -201,38 +187,37 @@ const quizData={
   }
 };
 
-// ================== STATE ==================
-let lang="de";
-let topic=null,sub=null,index=0;
-let coins=Number(localStorage.getItem("coins"))||0;
-let level=Number(localStorage.getItem("level"))||1;
+// ================= STATE =================
+let lang="de",topic,sub,index=0;
+let coins=+localStorage.getItem("coins")||0;
+let level=+localStorage.getItem("level")||1;
+let reducedOptions=null;
 
-// ================== UTIL ==================
+// ================= UTIL =================
 const shuffle=a=>[...a].sort(()=>Math.random()-0.5);
 
-// ================== SPRACHE ==================
+// ================= SPRACHE =================
 function setLang(l){
   lang=l;
   document.documentElement.dir=l==="ar"?"rtl":"ltr";
   renderThemes();
 }
 
-// ================== LOGIN ==================
+// ================= LOGIN =================
 function login(){
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("themeBox").classList.remove("hidden");
+  loginBox.classList.add("hidden");
+  themeBox.classList.remove("hidden");
   renderThemes();
 }
-function register(){ login(); }
 function logout(){
-  document.getElementById("themeBox").classList.add("hidden");
-  document.getElementById("loginBox").classList.remove("hidden");
+  themeBox.classList.add("hidden");
+  loginBox.classList.remove("hidden");
 }
 
-// ================== THEMEN ==================
+// ================= THEMEN =================
 function renderThemes(){
-  document.getElementById("themes").innerHTML="";
-  document.getElementById("themeTitle").textContent=
+  themes.innerHTML="";
+  themeTitle.textContent=
     lang==="de"?"Themen auswählen":
     lang==="en"?"Select topics":"اختر الموضوع";
 
@@ -241,39 +226,35 @@ function renderThemes(){
     d.className="theme";
     d.textContent=quizData[t].label[lang];
     d.onclick=()=>renderSubs(t);
-    document.getElementById("themes").appendChild(d);
+    themes.appendChild(d);
   });
-
   updateStats();
 }
 
-// ================== SUBTHEMEN ==================
+// ================= SUB =================
 function renderSubs(t){
   topic=t;
-  const box=document.getElementById("themes");
-  box.innerHTML="";
-
+  themes.innerHTML="";
   Object.keys(quizData[t]).forEach(s=>{
     if(s==="label")return;
     const d=document.createElement("div");
     d.className="sub";
     d.textContent=quizData[t][s].label[lang];
     d.onclick=()=>startQuiz(s);
-    box.appendChild(d);
+    themes.appendChild(d);
   });
-
   const back=document.createElement("button");
-  back.textContent=lang==="de"?"⬅ Zurück":"⬅ Back";
+  back.textContent="⬅ Zurück";
   back.style.background="#f44336";
   back.onclick=renderThemes;
-  box.appendChild(back);
+  themes.appendChild(back);
 }
 
-// ================== QUIZ ==================
+// ================= QUIZ =================
 function startQuiz(s){
-  sub=s; index=0;
-  document.getElementById("themeBox").classList.add("hidden");
-  document.getElementById("quizBox").classList.remove("hidden");
+  sub=s; index=0; reducedOptions=null;
+  themeBox.classList.add("hidden");
+  quizBox.classList.remove("hidden");
   showQuestion();
 }
 
@@ -281,37 +262,50 @@ function showQuestion(){
   const q=quizData[topic][sub].questions[index];
   if(!q){ backToSub(); return; }
 
-  document.getElementById("quizTitle").textContent=
-    quizData[topic][sub].label[lang];
-
-  document.getElementById("question").textContent=q.q[lang];
-  const a=document.getElementById("answers");
-  a.innerHTML="";
+  quizTitle.textContent=quizData[topic][sub].label[lang];
+  question.textContent=q.q[lang];
+  answers.innerHTML="";
+  helpBtn.style.display="block";
 
   if(q.options){
-    shuffle(q.options[lang]).forEach(o=>{
+    const opts=reducedOptions||shuffle(q.options[lang]);
+    opts.forEach(o=>{
       const b=document.createElement("button");
       b.className="answer";
       b.textContent=o;
       b.onclick=()=>check(o);
-      a.appendChild(b);
+      answers.appendChild(b);
     });
   }else{
-    const input=document.createElement("input");
-    input.id="textAnswer";
-    a.appendChild(input);
-    const btn=document.createElement("button");
-    btn.textContent=lang==="de"?"Antworten":"Submit";
-    btn.onclick=()=>checkText(input.value);
-    a.appendChild(btn);
+    const i=document.createElement("input");
+    i.id="textAnswer";
+    answers.appendChild(i);
+    const b=document.createElement("button");
+    b.textContent=lang==="de"?"Antworten":"Submit";
+    b.onclick=()=>checkText(i.value);
+    answers.appendChild(b);
   }
 
-  document.getElementById("quizCoins").textContent=coins;
-  document.getElementById("fill").style.width=
-    (index/quizData[topic][sub].questions.length*100)+"%";
+  quizCoins.textContent=coins;
+  fill.style.width=(index/quizData[topic][sub].questions.length*100)+"%";
 }
 
-// ================== CHECK ==================
+// ================= HILFE =================
+function useHelp(){
+  if(coins<100)return alert("Nicht genug Coins!");
+  coins-=100; updateStats();
+
+  const q=quizData[topic][sub].questions[index];
+  if(q.options){
+    const wrong=q.options[lang].filter(o=>o!==q.answer[lang]);
+    reducedOptions=shuffle([q.answer[lang],wrong[0]]);
+    showQuestion();
+  }else{
+    document.getElementById("textAnswer").value=q.answer[lang].slice(0,2);
+  }
+}
+
+// ================= CHECK =================
 function check(ans){
   const q=quizData[topic][sub].questions[index];
   showResult(ans===q.answer[lang]);
@@ -322,35 +316,38 @@ function checkText(ans){
 }
 
 function showResult(correct){
-  const r=document.getElementById("result");
   if(correct){
     coins+=25;
     if(coins>=level*100)level++;
-    r.textContent=lang==="de"?"Richtig!":"Correct!";
-    r.style.background="#4CAF50";
+    result.textContent=lang==="de"?"Richtig!":"Correct!";
+    result.style.background="#4CAF50";
   }else{
-    r.textContent=lang==="de"?"Falsch!":"Wrong!";
-    r.style.background="#f44336";
+    result.textContent=lang==="de"?"Falsch!":"Wrong!";
+    result.style.background="#f44336";
   }
-  localStorage.setItem("coins",coins);
-  localStorage.setItem("level",level);
-  updateStats();
-  r.style.display="block";
+  save(); updateStats();
+  result.style.display="block";
+  reducedOptions=null;
   index++;
-  setTimeout(()=>{r.style.display="none";showQuestion();},1000);
+  setTimeout(()=>{result.style.display="none";showQuestion();},1000);
 }
 
-// ================== BACK ==================
+// ================= BACK =================
 function backToSub(){
-  document.getElementById("quizBox").classList.add("hidden");
-  document.getElementById("themeBox").classList.remove("hidden");
+  quizBox.classList.add("hidden");
+  themeBox.classList.remove("hidden");
   renderSubs(topic);
 }
 
-// ================== STATS ==================
+// ================= STATS =================
 function updateStats(){
-  document.getElementById("coins").textContent=coins;
-  document.getElementById("level").textContent=level;
+  coinsSpan.textContent=coins;
+  quizCoins.textContent=coins;
+  levelSpan.textContent=level;
+}
+function save(){
+  localStorage.setItem("coins",coins);
+  localStorage.setItem("level",level);
 }
 </script>
 
