@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Big Quiz</title>
+
 <style>
 body{
   font-family:'Segoe UI',Tahoma,sans-serif;
@@ -65,7 +66,6 @@ button{
   color:white;
   border:none;
   border-radius:5px;
-  cursor:pointer;
 }
 .progress{
   width:100%;
@@ -92,19 +92,20 @@ input{
 }
 </style>
 </head>
+
 <body>
 
 <!-- LOGIN -->
 <div class="container" id="loginBox">
-  <h2 id="loginTitle">Login / Registrierung</h2>
-  <input id="username" placeholder="Benutzername">
-  <input id="password" type="password" placeholder="Passwort">
-  <button onclick="login()" id="loginBtn">Login</button>
-  <button onclick="register()" id="registerBtn">Registrieren</button>
+  <h2 id="loginTitle"></h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()" id="loginBtn"></button>
+  <button onclick="register()" id="registerBtn"></button>
   <p id="loginMsg" style="color:red;text-align:center;"></p>
 </div>
 
-<!-- THEMEN -->
+<!-- THEMES -->
 <div class="container hidden" id="themeBox">
   <div class="top">
     <h2 id="themeTitle"></h2>
@@ -118,7 +119,7 @@ input{
   </div>
 
   <div id="themes"></div>
-  <button style="background:#f44336;margin-top:10px;" onclick="logout()">Logout</button>
+  <button style="background:#f44336" onclick="logout()">Logout</button>
 </div>
 
 <!-- QUIZ -->
@@ -133,16 +134,179 @@ input{
   <div id="question"></div>
   <div id="answers"></div>
 
-  <button style="background:#ff9800" onclick="useHelp()">Hilfe (100 💰)</button>
+  <button id="helpBtn" style="background:#ff9800" onclick="useHelp()"></button>
 
   <div id="result"></div>
 
-  <button style="background:#f44336" onclick="backToThemes()">⬅ Zurück</button>
+  <button style="background:#f44336" onclick="backToThemes()">⬅</button>
 </div>
 
 <script>
-/* ================= DATA ================= */
-const quizData={
+/* ================= STATE & UTIL ================= */
+let lang="de", topic=null, sub=null, index=0;
+let coins=0, level=1, reduced=null, helpUsed=false;
+let currentUser=null;
+
+const shuffle=a=>[...a].sort(()=>Math.random()-0.5);
+const normalize=s=>s.replace(/\s+/g,"").toLowerCase();
+
+/* ================= USER ================= */
+function loadUser(){
+  const u=JSON.parse(localStorage.getItem("user_"+currentUser));
+  coins=u.coins||0; level=u.level||1;
+}
+function saveUser(){
+  const u=JSON.parse(localStorage.getItem("user_"+currentUser));
+  u.coins=coins; u.level=level;
+  localStorage.setItem("user_"+currentUser,JSON.stringify(u));
+}
+
+/* ================= LOGIN ================= */
+function login(){
+  const u=username.value.trim(), p=password.value;
+  const user=JSON.parse(localStorage.getItem("user_"+u));
+  if(!user||user.password!==btoa(p)){
+    loginMsg.textContent="❌";
+    return;
+  }
+  currentUser=u;
+  localStorage.setItem("currentUser",u);
+  loadUser();
+  loginBox.classList.add("hidden");
+  themeBox.classList.remove("hidden");
+  renderThemes();
+}
+function register(){
+  const u=username.value.trim(), p=password.value;
+  if(localStorage.getItem("user_"+u)) return;
+  localStorage.setItem("user_"+u,JSON.stringify({password:btoa(p),coins:0,level:1}));
+  loginMsg.textContent="✅";
+}
+function logout(){
+  localStorage.removeItem("currentUser");
+  location.reload();
+}
+
+/* ================= LANGUAGE ================= */
+function setLang(l){
+  lang=l;
+  document.documentElement.dir=l==="ar"?"rtl":"ltr";
+  loginTitle.textContent=l==="de"?"Login":"Login";
+  loginBtn.textContent=l==="de"?"Login":"Login";
+  registerBtn.textContent=l==="de"?"Registrieren":"Register";
+  helpBtn.textContent=l==="de"?"Hilfe (100 💰)":l==="en"?"Help (100 💰)":"مساعدة (100 💰)";
+  renderThemes();
+}
+
+/* ================= THEMES ================= */
+function renderThemes(){
+  themes.innerHTML="";
+  themeTitle.textContent=lang==="de"?"Themen":"Topics";
+  coinsSpan.textContent=coins;
+  levelSpan.textContent=level;
+  Object.keys(quizData).forEach(t=>{
+    const d=document.createElement("div");
+    d.className="theme";
+    d.textContent=quizData[t].label[lang];
+    d.onclick=()=>renderSubs(t);
+    themes.appendChild(d);
+  });
+}
+function renderSubs(t){
+  topic=t;
+  themes.innerHTML="";
+  Object.keys(quizData[t]).forEach(s=>{
+    if(s==="label")return;
+    const d=document.createElement("div");
+    d.className="sub";
+    d.textContent=quizData[t][s].label[lang];
+    d.onclick=()=>startQuiz(s);
+    themes.appendChild(d);
+  });
+}
+
+/* ================= QUIZ ================= */
+function startQuiz(s){
+  sub=s; index=0; reduced=null; helpUsed=false;
+  themeBox.classList.add("hidden");
+  quizBox.classList.remove("hidden");
+  showQuestion();
+}
+function showQuestion(){
+  const list=quizData[topic][sub].questions;
+  if(!list[index]) return backToThemes();
+  helpUsed=false;
+  const q=list[index];
+  quizTitle.textContent=quizData[topic][sub].label[lang];
+  question.textContent=q.q[lang];
+  answers.innerHTML="";
+  quizCoins.textContent=coins;
+
+  if(q.options){
+    (reduced||shuffle(q.options[lang])).forEach(o=>{
+      const b=document.createElement("button");
+      b.className="answer";
+      b.textContent=o;
+      b.onclick=()=>check(o);
+      answers.appendChild(b);
+    });
+  }else{
+    const i=document.createElement("input");
+    const b=document.createElement("button");
+    b.textContent="OK";
+    b.onclick=()=>checkText(i.value);
+    answers.append(i,b);
+  }
+  fill.style.width=((index+1)/list.length*100)+"%";
+}
+
+/* ================= HELP ================= */
+function useHelp(){
+  if(helpUsed||coins<100) return;
+  coins-=100;
+  helpUsed=true;
+  const q=quizData[topic][sub].questions[index];
+  if(q.options){
+    reduced=shuffle([q.answer[lang],q.options[lang].find(o=>o!==q.answer[lang])]);
+  }
+  showQuestion();
+}
+
+/* ================= CHECK ================= */
+function check(a){showResult(a===quizData[topic][sub].questions[index].answer[lang]);}
+function checkText(a){showResult(normalize(a)===normalize(quizData[topic][sub].questions[index].answer[lang]));}
+function showResult(ok){
+  result.textContent=ok?"✔":"✖";
+  result.style.background=ok?"#4CAF50":"#f44336";
+  result.style.display="block";
+  if(ok){
+    coins+=25;
+    if(coins>=level*100) level++;
+  }
+  saveUser();
+  index++;
+  setTimeout(()=>{result.style.display="none";showQuestion();},800);
+}
+
+/* ================= BACK ================= */
+function backToThemes(){
+  quizBox.classList.add("hidden");
+  themeBox.classList.remove("hidden");
+  renderThemes();
+}
+
+/* ================= INIT ================= */
+if(localStorage.getItem("currentUser")){
+  currentUser=localStorage.getItem("currentUser");
+  loadUser();
+  loginBox.classList.add("hidden");
+  themeBox.classList.remove("hidden");
+  renderThemes();
+}
+setLang("de");
+</script>
+<script>
+const quizData = {
   Geschichte:{
     label:{de:"Geschichte",en:"History",ar:"التاريخ"},
     Deutschland:{
@@ -150,18 +314,18 @@ const quizData={
       questions:[
         {q:{de:"Wann begann der 2. Weltkrieg?",en:"When did WWII start?",ar:"متى بدأ الحرب العالمية الثانية؟"},options:{de:["1939","1945","1914","1923"],en:["1939","1945","1914","1923"],ar:["1939","1945","1914","1923"]},answer:{de:"1939",en:"1939",ar:"1939"}},
         {q:{de:"Wer war der erste Kaiser Deutschlands?",en:"Who was the first emperor of Germany?",ar:"من كان أول إمبراطور ألمانيا؟"},options:{de:["Wilhelm I","Friedrich II","Otto I","Karl der Große"],en:["Wilhelm I","Friedrich II","Otto I","Karl der Große"],ar:["فيلهلم الأول","فريدريك الثاني","أوتو الأول","كارل العظيم"]},answer:{de:"Wilhelm I",en:"Wilhelm I",ar:"فيلهلم الأول"}},
-        {q:{de:"Wann fiel die Berliner Mauer?",en:"When did the Berlin Wall fall?",ar:"متى سقطت جدار برلين؟"},options:{de:["1989","1990","1987","1991"],en:["1989","1990","1987","1991"],ar:["1989","1990","1987","1991"]},answer:{de:"1989",en:"1989",ar:"1989"}},
+        {q:{de:"Wann fiel die Berliner Mauer?",en:"When did the Berlin Wall fall?",ar:"متى سقط جدار برلين؟"},options:{de:["1989","1990","1987","1991"],en:["1989","1990","1987","1991"],ar:["1989","1990","1987","1991"]},answer:{de:"1989",en:"1989",ar:"1989"}},
         {q:{de:"Was war der Auslöser des 1. Weltkriegs?",en:"What triggered WWI?",ar:"ما الذي سبب الحرب العالمية الأولى؟"},options:{de:["Attentat von Sarajevo","Krieg in Afrika","Industrialisierung","Revolution"],en:["Sarajevo assassination","War in Africa","Industrialization","Revolution"],ar:["اغتيال سراييفو","الحرب في أفريقيا","التصنيع","الثورة"]},answer:{de:"Attentat von Sarajevo",en:"Sarajevo assassination",ar:"اغتيال سراييفو"}},
         {q:{de:"Wer entdeckte Amerika?",en:"Who discovered America?",ar:"من اكتشف أمريكا؟"},options:{de:["Kolumbus","Vespucci","Magellan","Leif Erikson"],en:["Columbus","Vespucci","Magellan","Leif Erikson"],ar:["كولومبوس","فيسبوكي","ماجلان","ليف إريكسون"]},answer:{de:"Kolumbus",en:"Columbus",ar:"كولومبوس"}},
-        {q:{de:"Wann war der Fall von Konstantinopel?",en:"Fall of Constantinople?",ar:"متى سقط القسطنطينية؟"},options:{de:["1453","1492","1204","1521"],en:["1453","1492","1204","1521"],ar:["1453","1492","1204","1521"]},answer:{de:"1453",en:"1453",ar:"1453"}},
+        {q:{de:"Wann war der Fall von Konstantinopel?",en:"Fall of Constantinople?",ar:"متى سقطت القسطنطينية؟"},options:{de:["1453","1492","1204","1521"],en:["1453","1492","1204","1521"],ar:["1453","1492","1204","1521"]},answer:{de:"1453",en:"1453",ar:"1453"}},
         {q:{de:"Wer war Napoleon?",en:"Who was Napoleon?",ar:"من كان نابليون؟"},options:{de:["Französischer Kaiser","Russischer Zar","Deutscher König","Britischer König"],en:["French Emperor","Russian Tsar","German King","British King"],ar:["الإمبراطور الفرنسي","القيصر الروسي","ملك ألمانيا","الملك البريطاني"]},answer:{de:"Französischer Kaiser",en:"French Emperor",ar:"الإمبراطور الفرنسي"}},
         {q:{de:"Wann begann die Französische Revolution?",en:"When did the French Revolution start?",ar:"متى بدأت الثورة الفرنسية؟"},options:{de:["1789","1776","1804","1799"],en:["1789","1776","1804","1799"],ar:["1789","1776","1804","1799"]},answer:{de:"1789",en:"1789",ar:"1789"}},
-        {q:{de:"Wer schrieb die 'Ilias'?",en:"Who wrote the 'Iliad'?",ar:"من كتب الإلياذة؟"},options:{de:["Homer","Virgil","Sophokles","Euripides"],en:["Homer","Virgil","Sophocles","Euripides"],ar:["هوميروس","فيرجيل","سوفوكليس","يوربيديس"]},answer:{de:"Homer",en:"Homer",ar:"هوميروس"}},
+        {q:{de:"Wer schrieb die Ilias?",en:"Who wrote the Iliad?",ar:"من كتب الإلياذة؟"},options:{de:["Homer","Virgil","Sophokles","Euripides"],en:["Homer","Virgil","Sophocles","Euripides"],ar:["هوميروس","فيرجيل","سوفوكليس","يوربيديس"]},answer:{de:"Homer",en:"Homer",ar:"هوميروس"}},
         {q:{de:"Wann war die industrielle Revolution?",en:"When was the Industrial Revolution?",ar:"متى كانت الثورة الصناعية؟"},options:{de:["18. Jh","17. Jh","19. Jh","20. Jh"],en:["18th c.","17th c.","19th c.","20th c."],ar:["القرن 18","القرن 17","القرن 19","القرن 20"]},answer:{de:"18. Jh",en:"18th c.",ar:"القرن 18"}}
       ]
     }
-    // Weitere Themen wie Wissenschaft, TextQuiz, Geheim, ArabischeRätsel folgen gleich…
   },
+
   Wissenschaft:{
     label:{de:"Wissenschaft",en:"Science",ar:"العلوم"},
     Physik:{
@@ -180,6 +344,7 @@ const quizData={
       ]
     }
   },
+
   TextQuiz:{
     label:{de:"Text Quiz",en:"Text Quiz",ar:"اختبار نصي"},
     Rätsel:{
@@ -193,11 +358,12 @@ const quizData={
         {q:{de:"Es ist heiß und kommt aus dem Ofen",en:"It's hot and comes from the oven",ar:"إنه ساخن ويخرج من الفرن"},answer:{de:"Brot",en:"Bread",ar:"خبز"}},
         {q:{de:"Es lebt im Wasser",en:"Lives in water",ar:"يعيش في الماء"},answer:{de:"Fisch",en:"Fish",ar:"سمك"}},
         {q:{de:"Man benutzt es zum Schneiden",en:"Used to cut",ar:"يستخدم للقطع"},answer:{de:"Messer",en:"Knife",ar:"سكين"}},
-        {q:{de:"Es ist weich und kuschelig",en:"Soft and cuddly",ar:"إنه ناعم ويحتوي على الفراء",ar:"دب"},answer:{de:"Teddy",en:"Teddy",ar:"دب"}},
+        {q:{de:"Es ist weich und kuschelig",en:"Soft and cuddly",ar:"إنه ناعم ويحتوي على الفراء"},answer:{de:"Teddy",en:"Teddy",ar:"دب"}},
         {q:{de:"Es hat vier Beine",en:"It has four legs",ar:"له أربعة أرجل"},answer:{de:"Hund",en:"Dog",ar:"كلب"}}
       ]
     }
   },
+
   ArabischeRätsel:{
     label:{de:"Arabische Rätsel",en:"Arabic Riddles",ar:"ألغاز عربية"},
     Klassische:{
@@ -208,15 +374,16 @@ const quizData={
         {q:{de:"ما الشيء الذي يكون أخضر في الأرض، أسود في السوق، أحمر في البيت؟",en:"What is green in the ground, black in the market, red at home?",ar:"ما الشيء الذي يكون أخضر في الأرض، أسود في السوق، أحمر في البيت؟"},answer:{de:"Tee",en:"Tea",ar:"الشاي"}},
         {q:{de:"ما الذي يزداد كلما نقص؟",en:"What increases as it decreases?",ar:"ما الذي يزداد كلما نقص؟"},answer:{de:"Alter",en:"Age",ar:"العمر"}},
         {q:{de:"ما الشيء الذي يتكلم كل لغات العالم؟",en:"What speaks all languages?",ar:"ما الشيء الذي يتكلم كل لغات العالم؟"},answer:{de:"Echo",en:"Echo",ar:"الصدى"}},
-        {q:{de:"شيء إذا قلبته كبر؟",en:"Something that grows when flipped?",ar:"شيء إذا قلبته كبر؟"},answer:{de:"Die 6 wird 9",en:"6 becomes 9",ar:"الرقم 6 (يصبح 9)"}},
+        {q:{de:"شيء إذا قلبته كبر؟",en:"Something that grows when flipped?",ar:"شيء إذا قلبته كبر؟"},answer:{de:"6 wird 9",en:"6 becomes 9",ar:"الرقم 6 يصبح 9"}},
         {q:{de:"ما الشيء الذي له رأس ولا عين له؟",en:"What has a head but no eyes?",ar:"ما الشيء الذي له رأس ولا عين له؟"},answer:{de:"Stecknadel",en:"Pin",ar:"الدبوس"}},
         {q:{de:"ما الذي لا يدخل إلا إذا ضُرب؟",en:"What only enters when hit?",ar:"ما الذي لا يدخل إلا إذا ضُرب؟"},answer:{de:"Nagel",en:"Nail",ar:"المسمار"}},
-        {q:{de:"ما الشيء الذي لا يمكنك الاحتفاظ به بعد أن تعطيه؟",en:"What you cannot keep after giving?",ar:"ما الذي لا يمكنك الاحتفاظ به بعد أن تعطيه؟"},answer:{de:"Das Wort",en:"The Word",ar:"الكلمة"}},
+        {q:{de:"ما الشيء الذي لا يمكنك الاحتفاظ به بعد أن تعطيه؟",en:"What you cannot keep after giving?",ar:"ما الشيء الذي لا يمكنك الاحتفاظ به بعد أن تعطيه؟"},answer:{de:"Das Wort",en:"The Word",ar:"الكلمة"}},
         {q:{de:"ما الشيء الموجود في كل بيت ولا يُستعمل؟",en:"What exists in every house but is unused?",ar:"ما الشيء الموجود في كل بيت ولا يُستعمل؟"},answer:{de:"Friedhof",en:"Cemetery",ar:"المقبرة"}},
         {q:{de:"ما الذي يراك دائمًا ولا تستطيع رؤيته؟",en:"What always sees you but you can't see?",ar:"ما الذي يراك دائمًا ولا تستطيع رؤيته؟"},answer:{de:"Hinter deinem Kopf",en:"Behind your head",ar:"خلف رأسك"}},
         {q:{de:"ما الشيء الذي إذا ذكرته اختفى؟",en:"What disappears when mentioned?",ar:"ما الشيء الذي إذا ذكرته اختفى؟"},answer:{de:"Stille",en:"Silence",ar:"الصمت"}}
       ]
     },
+
     Religiöse:{
       label:{de:"Religiöse Rätsel",en:"Religious Riddles",ar:"ألغاز دينية"},
       questions:[
@@ -234,156 +401,6 @@ const quizData={
     }
   }
 };
-
-/* ================= STATE ================= */
-let lang="de";
-let topic=null, sub=null, index=0;
-let coins=Number(localStorage.getItem("coins"))||0;
-let level=Number(localStorage.getItem("level"))||1;
-let reduced=null;
-let currentUser=null;
-
-/* ================= UTIL ================= */
-const shuffle=a=>[...a].sort(()=>Math.random()-0.5);
-
-/* ================= LOGIN/REGISTER ================= */
-function login(){
-  const u=document.getElementById("username").value.trim();
-  const p=document.getElementById("password").value;
-  if(!u||!p){loginMsg.textContent=lang==="de"?"Bitte ausfüllen":lang==="en"?"Please fill in":"الرجاء الإدخال"; return;}
-  const user=JSON.parse(localStorage.getItem("user_"+u));
-  if(user && user.password===p){currentUser=u; localStorage.setItem("currentUser",u); loginBox.classList.add("hidden"); themeBox.classList.remove("hidden"); renderThemes();}
-  else loginMsg.textContent=lang==="de"?"Falscher Login":lang==="en"?"Wrong login":"تسجيل الدخول خاطئ";
-}
-function register(){
-  const u=document.getElementById("username").value.trim();
-  const p=document.getElementById("password").value;
-  if(!u||!p){loginMsg.textContent=lang==="de"?"Bitte ausfüllen":lang==="en"?"Please fill in":"الرجاء الإدخال"; return;}
-  if(localStorage.getItem("user_"+u)){loginMsg.textContent=lang==="de"?"Benutzer existiert":lang==="en"?"User exists":"المستخدم موجود"; return;}
-  localStorage.setItem("user_"+u,JSON.stringify({password:p,coins:0}));
-  loginMsg.textContent=lang==="de"?"Registriert!":lang==="en"?"Registered!":"تم التسجيل!";
-}
-function logout(){localStorage.removeItem("currentUser"); currentUser=null; loginBox.classList.remove("hidden"); themeBox.classList.add("hidden");}
-
-/* ================= LANGUAGE ================= */
-function setLang(l){
-  lang=l;
-  document.documentElement.dir=l==="ar"?"rtl":"ltr";
-  loginTitle.textContent=lang==="de"?"Login / Registrierung":lang==="en"?"Login / Register":"تسجيل الدخول / التسجيل";
-  loginBtn.textContent=lang==="de"?"Login":lang==="en"?"Login":"تسجيل الدخول";
-  registerBtn.textContent=lang==="de"?"Registrieren":lang==="en"?"Register":"تسجيل";
-  renderThemes();
-}
-
-/* ================= THEMES ================= */
-function renderThemes(){
-  themes.innerHTML="";
-  themeTitle.textContent=lang==="de"?"Themen auswählen":lang==="en"?"Select Topics":"اختر الموضوع";
-  Object.keys(quizData).forEach(t=>{
-    const d=document.createElement("div");
-    d.className="theme";
-    d.textContent=quizData[t].label[lang];
-    d.onclick=()=>renderSubs(t);
-    themes.appendChild(d);
-  });
-  updateStats();
-}
-
-function renderSubs(t){
-  topic=t;
-  themes.innerHTML="";
-  Object.keys(quizData[t]).forEach(s=>{
-    if(s==="label")return;
-    const d=document.createElement("div");
-    d.className="sub";
-    d.textContent=quizData[t][s].label[lang];
-    d.onclick=()=>startQuiz(s);
-    themes.appendChild(d);
-  });
-  const backBtn=document.createElement("button");
-  backBtn.textContent=lang==="de"?"Zurück":lang==="en"?"Back":"عودة";
-  backBtn.style.background="#f44336";
-  backBtn.onclick=()=>renderThemes();
-  themes.appendChild(backBtn);
-}
-
-/* ================= QUIZ ================= */
-function startQuiz(s){
-  sub=s; index=0; reduced=null;
-  themeBox.classList.add("hidden");
-  quizBox.classList.remove("hidden");
-  quizCoins.textContent=coins;
-  showQuestion();
-}
-
-function showQuestion(){
-  const q=quizData[topic][sub].questions[index];
-  if(!q){backToThemes(); return;}
-  quizTitle.textContent=quizData[topic][sub].label[lang];
-  question.textContent=q.q[lang];
-  answers.innerHTML="";
-  quizCoins.textContent=coins;
-
-  if(q.options){
-    (reduced||shuffle(q.options[lang])).forEach(o=>{
-      const b=document.createElement("button");
-      b.className="answer";
-      b.textContent=o;
-      b.onclick=()=>check(o);
-      answers.appendChild(b);
-    });
-  }else{
-    const i=document.createElement("input");
-    answers.appendChild(i);
-    const b=document.createElement("button");
-    b.textContent=lang==="de"?"Antworten":lang==="en"?"Submit":"إرسال";
-    b.onclick=()=>checkText(i.value);
-    answers.appendChild(b);
-  }
-  fill.style.width=(index/quizData[topic][sub].questions.length*100)+"%";
-}
-
-/* ================= HELP ================= */
-function useHelp(){
-  if(coins<100){alert(lang==="de"?"Nicht genug Coins!":"Not enough coins!"); return;}
-  coins-=100; updateStats();
-  const q=quizData[topic][sub].questions[index];
-  if(q.options){
-    const wrong=q.options[lang].filter(o=>o!==q.answer[lang]);
-    reduced=shuffle([q.answer[lang],wrong[0]]);
-    showQuestion();
-  }else{
-    const input=document.querySelector("#answers input");
-    if(input) input.value=q.answer[lang].substring(0,2);
-  }
-}
-
-/* ================= CHECK ================= */
-function check(ans){
-  const q=quizData[topic][sub].questions[index];
-  showResult(ans===q.answer[lang]);
-}
-function checkText(ans){
-  const q=quizData[topic][sub].questions[index];
-  showResult(ans.trim().toLowerCase()===q.answer[lang].toLowerCase());
-}
-function showResult(correct){
-  if(correct){coins+=25; if(coins>=level*100)level++; result.textContent=lang==="de"?"Richtig!":"Correct!"; result.style.background="#4CAF50";}
-  else{result.textContent=lang==="de"?"Falsch!":"Wrong!"; result.style.background="#f44336";}
-  localStorage.setItem("coins",coins); localStorage.setItem("level",level);
-  result.style.display="block"; reduced=null; index++;
-  setTimeout(()=>{result.style.display="none";showQuestion();},1000);
-}
-
-/* ================= BACK ================= */
-function backToThemes(){quizBox.classList.add("hidden"); themeBox.classList.remove("hidden"); renderThemes();}
-
-/* ================= STATS ================= */
-function updateStats(){coinsSpan.textContent=coins; levelSpan.textContent=level;}
-
-/* ================= INIT ================= */
-if(localStorage.getItem("currentUser")){currentUser=localStorage.getItem("currentUser"); loginBox.classList.add("hidden"); themeBox.classList.remove("hidden"); renderThemes();}
 </script>
-
 </body>
 </html>
